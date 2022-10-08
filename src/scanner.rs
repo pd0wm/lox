@@ -108,8 +108,10 @@ impl Scanner {
 
             // Number?
             _ => {
-                if c.is_digit(10) {
+                if c.is_ascii_digit() {
                     self.number()
+                } else if c.is_ascii_alphabetic() {
+                    self.identifier()
                 } else {
                     Err(LoxError::new(self.line, "Unexpected character."))
                 }
@@ -183,15 +185,15 @@ impl Scanner {
     }
 
     fn number(&mut self) -> Result<(), LoxError> {
-        while self.peek().is_some_and(|c| c.is_digit(10)) {
+        while self.peek().is_some_and(|c| c.is_ascii_digit()) {
             self.advance();
         }
 
         // Consume part after decimal separator
-        if self.peek() == Some('.') && self.peek_next().is_some_and(|c| c.is_digit(10)) {
+        if self.peek() == Some('.') && self.peek_next().is_some_and(|c| c.is_ascii_digit()) {
             self.advance();
 
-            while self.peek().is_some_and(|c| c.is_digit(10)) {
+            while self.peek().is_some_and(|c| c.is_ascii_digit()) {
                 self.advance();
             }
         }
@@ -199,5 +201,13 @@ impl Scanner {
         let val: f64 = val.parse().unwrap();
 
         self.add_token(TokenType::Number, Some(Literal::Number(val)))
+    }
+
+    fn identifier(&mut self) -> Result<(), LoxError> {
+        while self.peek().is_some_and(|c| c.is_ascii_alphanumeric()) {
+            self.advance();
+        }
+
+        self.add_token(TokenType::Identifier, None)
     }
 }
