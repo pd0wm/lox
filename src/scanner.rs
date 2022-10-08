@@ -106,7 +106,14 @@ impl Scanner {
             // Strings
             '"' => self.string(),
 
-            _ => Err(LoxError::new(self.line, "Unexpected character.")),
+            // Number?
+            _ => {
+                if c.is_digit(10) {
+                    self.number()
+                } else {
+                    Err(LoxError::new(self.line, "Unexpected character."))
+                }
+            }
         }
     }
 
@@ -146,6 +153,14 @@ impl Scanner {
         }
     }
 
+    fn peek_next(&self) -> Option<char> {
+        if self.current + 1 >= self.source.len() {
+            None
+        } else {
+            Some(self.source[self.current + 1])
+        }
+    }
+
     fn string(&mut self) -> Result<(), LoxError> {
         while self.peek() != Some('"') && !self.is_at_end() {
             if self.peek() == Some('\n') {
@@ -165,5 +180,24 @@ impl Scanner {
         let val = String::from_iter(&self.source[self.start + 1..self.current - 1]);
 
         self.add_token(TokenType::String, Some(Literal::Text(val)))
+    }
+
+    fn number(&mut self) -> Result<(), LoxError> {
+        while self.peek().is_some_and(|c| c.is_digit(10)) {
+            self.advance();
+        }
+
+        // Consume part after decimal separator
+        if self.peek() == Some('.') && self.peek_next().is_some_and(|c| c.is_digit(10)) {
+            self.advance();
+
+            while self.peek().is_some_and(|c| c.is_digit(10)) {
+                self.advance();
+            }
+        }
+        let val = String::from_iter(&self.source[self.start..self.current]);
+        let val: f64 = val.parse().unwrap();
+
+        self.add_token(TokenType::Number, Some(Literal::Number(val)))
     }
 }

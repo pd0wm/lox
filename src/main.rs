@@ -1,3 +1,5 @@
+#![feature(is_some_with)]
+
 use clap::Parser;
 use std::process::ExitCode;
 
