@@ -10,7 +10,9 @@ pub struct Lox {
 
 impl Lox {
     pub fn new() -> Self {
-        Self {..Default::default()}
+        Self {
+            ..Default::default()
+        }
     }
 
     pub fn run_file(&self, path: &std::path::Path) -> Result<(), LoxError> {
