@@ -1,5 +1,5 @@
 use crate::lox_error::LoxError;
-use crate::token::{LiteralType, Token};
+use crate::token::{Literal, Token};
 use crate::token_type::TokenType;
 
 #[derive(Default)]
@@ -116,11 +116,7 @@ impl Scanner {
         c
     }
 
-    fn add_token(
-        &mut self,
-        type_: TokenType,
-        literal: Option<LiteralType>,
-    ) -> Result<(), LoxError> {
+    fn add_token(&mut self, type_: TokenType, literal: Option<Literal>) -> Result<(), LoxError> {
         let text = String::from_iter(&self.source[self.start..self.current]);
         self.tokens
             .push(Token::new(type_, &text, literal, self.line));
@@ -168,6 +164,6 @@ impl Scanner {
         // Extract string
         let val = String::from_iter(&self.source[self.start + 1..self.current - 1]);
 
-        self.add_token(TokenType::String, Some(LiteralType::Text(val)))
+        self.add_token(TokenType::String, Some(Literal::Text(val)))
     }
 }

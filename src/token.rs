@@ -2,16 +2,16 @@ use crate::token_type::TokenType;
 use std::fmt;
 
 #[derive(Clone)]
-pub enum LiteralType {
+pub enum Literal {
     Text(String),
     Number(f64),
 }
 
-impl fmt::Display for LiteralType {
+impl fmt::Display for Literal {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            LiteralType::Text(t) => write!(f, "{}", t),
-            LiteralType::Number(n) => write!(f, "{}", n),
+            Literal::Text(t) => write!(f, "{}", t),
+            Literal::Number(n) => write!(f, "{}", n),
         }
     }
 }
@@ -20,12 +20,12 @@ impl fmt::Display for LiteralType {
 pub struct Token {
     type_: TokenType,
     lexeme: String,
-    literal: Option<LiteralType>,
+    literal: Option<Literal>,
     line: usize,
 }
 
 impl Token {
-    pub fn new(type_: TokenType, lexeme: &str, literal: Option<LiteralType>, line: usize) -> Self {
+    pub fn new(type_: TokenType, lexeme: &str, literal: Option<Literal>, line: usize) -> Self {
         Self {
             type_,
             lexeme: lexeme.to_string(),
