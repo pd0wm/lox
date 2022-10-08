@@ -1,14 +1,16 @@
 use std::io::{BufRead, Write};
 
 use crate::lox_error::LoxError;
+use crate::scanner::Scanner;
 
+#[derive(Default)]
 pub struct Lox {
     cur_line: u64,
 }
 
 impl Lox {
     pub fn new() -> Self {
-        Self { cur_line: 0 }
+        Self {..Default::default()}
     }
 
     pub fn run_file(&self, path: &std::path::Path) -> Result<(), LoxError> {
@@ -37,7 +39,12 @@ impl Lox {
     }
 
     fn run(&self, source: &str) -> Result<(), LoxError> {
-        println!("Running {}", source);
-        Err(LoxError::new(self.cur_line, "Help!"))
+        let mut scanner = Scanner::new(source);
+
+        for token in scanner.scan_tokens()? {
+            println!("{}", token);
+        }
+
+        Ok(())
     }
 }

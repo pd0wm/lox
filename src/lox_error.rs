@@ -3,13 +3,13 @@ use std::fmt;
 
 #[derive(Debug, Clone)]
 pub struct LoxError {
-    line: u64,
+    line: usize,
     where_: String,
     message: String,
 }
 
 impl LoxError {
-    pub fn new(line: u64, message: &str) -> Self {
+    pub fn new(line: usize, message: &str) -> Self {
         LoxError {
             line,
             where_: "".to_string(),

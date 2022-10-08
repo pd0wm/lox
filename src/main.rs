@@ -3,8 +3,9 @@ use std::process::ExitCode;
 
 mod lox;
 mod lox_error;
-mod token_type;
+mod scanner;
 mod token;
+mod token_type;
 
 use crate::lox::Lox;
 
