@@ -1,11 +1,13 @@
 use crate::lox_error::LoxError;
 use crate::token::{Literal, Token};
 use crate::token_type::TokenType;
+use std::collections::HashMap;
 
 #[derive(Default)]
 pub struct Scanner {
     source: Vec<char>,
     tokens: Vec<Token>,
+    keywords: HashMap<String, TokenType>,
 
     start: usize,
     current: usize,
@@ -14,11 +16,31 @@ pub struct Scanner {
 
 impl Scanner {
     pub fn new(source: &str) -> Self {
-        Self {
+        let mut s = Self {
             source: source.chars().collect(),
             line: 1,
             ..Default::default()
-        }
+        };
+
+        // Initialize keywords HashMap
+        s.keywords.insert("and".to_string(), TokenType::And);
+        s.keywords.insert("class".to_string(), TokenType::Class);
+        s.keywords.insert("else".to_string(), TokenType::Else);
+        s.keywords.insert("false".to_string(), TokenType::False);
+        s.keywords.insert("for".to_string(), TokenType::For);
+        s.keywords.insert("fun".to_string(), TokenType::Fun);
+        s.keywords.insert("if".to_string(), TokenType::If);
+        s.keywords.insert("nil".to_string(), TokenType::Nil);
+        s.keywords.insert("or".to_string(), TokenType::Or);
+        s.keywords.insert("print".to_string(), TokenType::Print);
+        s.keywords.insert("return".to_string(), TokenType::Return);
+        s.keywords.insert("super".to_string(), TokenType::Super);
+        s.keywords.insert("this".to_string(), TokenType::This);
+        s.keywords.insert("true".to_string(), TokenType::True);
+        s.keywords.insert("var".to_string(), TokenType::Var);
+        s.keywords.insert("while".to_string(), TokenType::While);
+
+        s
     }
 
     pub fn scan_tokens(&mut self) -> Result<Vec<Token>, LoxError> {
@@ -208,6 +230,11 @@ impl Scanner {
             self.advance();
         }
 
-        self.add_token(TokenType::Identifier, None)
+        let val = String::from_iter(&self.source[self.start..self.current]);
+        if let Some(keyword) = self.keywords.get(&val) {
+            self.add_token(keyword.clone(), None)
+        } else {
+            self.add_token(TokenType::Identifier, None)
+        }
     }
 }
