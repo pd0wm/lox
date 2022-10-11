@@ -16,31 +16,29 @@ pub struct Scanner {
 
 impl Scanner {
     pub fn new(source: &str) -> Self {
-        let mut s = Self {
+        Self {
             source: source.chars().collect(),
             line: 1,
+            keywords: HashMap::from([
+                ("and".to_string(), TokenType::And),
+                ("class".to_string(), TokenType::Class),
+                ("else".to_string(), TokenType::Else),
+                ("false".to_string(), TokenType::False),
+                ("for".to_string(), TokenType::For),
+                ("fun".to_string(), TokenType::Fun),
+                ("if".to_string(), TokenType::If),
+                ("nil".to_string(), TokenType::Nil),
+                ("or".to_string(), TokenType::Or),
+                ("print".to_string(), TokenType::Print),
+                ("return".to_string(), TokenType::Return),
+                ("super".to_string(), TokenType::Super),
+                ("this".to_string(), TokenType::This),
+                ("true".to_string(), TokenType::True),
+                ("var".to_string(), TokenType::Var),
+                ("while".to_string(), TokenType::While),
+            ]),
             ..Default::default()
-        };
-
-        // Initialize keywords HashMap
-        s.keywords.insert("and".to_string(), TokenType::And);
-        s.keywords.insert("class".to_string(), TokenType::Class);
-        s.keywords.insert("else".to_string(), TokenType::Else);
-        s.keywords.insert("false".to_string(), TokenType::False);
-        s.keywords.insert("for".to_string(), TokenType::For);
-        s.keywords.insert("fun".to_string(), TokenType::Fun);
-        s.keywords.insert("if".to_string(), TokenType::If);
-        s.keywords.insert("nil".to_string(), TokenType::Nil);
-        s.keywords.insert("or".to_string(), TokenType::Or);
-        s.keywords.insert("print".to_string(), TokenType::Print);
-        s.keywords.insert("return".to_string(), TokenType::Return);
-        s.keywords.insert("super".to_string(), TokenType::Super);
-        s.keywords.insert("this".to_string(), TokenType::This);
-        s.keywords.insert("true".to_string(), TokenType::True);
-        s.keywords.insert("var".to_string(), TokenType::Var);
-        s.keywords.insert("while".to_string(), TokenType::While);
-
-        s
+        }
     }
 
     pub fn scan_tokens(&mut self) -> Result<Vec<Token>, LoxError> {
