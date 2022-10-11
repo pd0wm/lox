@@ -203,7 +203,7 @@ impl Scanner {
         // Extract string
         let val = String::from_iter(&self.source[self.start + 1..self.current - 1]);
 
-        self.add_token(TokenType::String, Some(Literal::Text(val)))
+        self.add_token(TokenType::String, Some(Literal::String(val)))
     }
 
     fn number(&mut self) -> Result<(), LoxError> {

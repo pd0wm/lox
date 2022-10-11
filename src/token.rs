@@ -3,14 +3,14 @@ use std::fmt;
 
 #[derive(Clone)]
 pub enum Literal {
-    Text(String),
+    String(String),
     Number(f64),
 }
 
 impl fmt::Display for Literal {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Literal::Text(t) => write!(f, "{}", t),
+            Literal::String(t) => write!(f, "{}", t),
             Literal::Number(n) => write!(f, "{}", n),
         }
     }
@@ -18,9 +18,9 @@ impl fmt::Display for Literal {
 
 #[derive(Clone)]
 pub struct Token {
-    type_: TokenType,
-    lexeme: String,
-    literal: Option<Literal>,
+    pub type_: TokenType,
+    pub lexeme: String,
+    pub literal: Option<Literal>,
     line: usize,
 }
 
