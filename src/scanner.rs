@@ -133,7 +133,7 @@ impl Scanner {
                 } else if c.is_ascii_alphabetic() {
                     self.identifier()
                 } else {
-                    Err(ScannerError::new(self.line, "Unexpected character."))
+                    Err(ScannerError::new(self.line, "Unexpected character.").into())
                 }
             }
         }
@@ -192,10 +192,7 @@ impl Scanner {
         }
 
         if self.is_at_end() {
-            return Err(LoxError::Scanner(ScannerError::new(
-                self.line,
-                "Unterminated string.",
-            )));
+            return Err(ScannerError::new(self.line, "Unterminated string.").into());
         }
 
         // Eat the closing "
