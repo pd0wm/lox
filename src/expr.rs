@@ -1,9 +1,7 @@
 use std::fmt;
 
 use crate::token::{Literal, Token};
-use crate::token_type::TokenType;
 
-// #[derive(Clone)]
 pub enum Expr {
     Binary {
         left: Box<Expr>,
@@ -14,12 +12,12 @@ pub enum Expr {
         expression: Box<Expr>,
     },
     Literal {
-        value: Option<Literal>,
+        value: Literal,
     },
     Unary {
         operator: Token,
         right: Box<Expr>,
-    }
+    },
 }
 
 fn parenthesize(f: &mut fmt::Formatter, name: &str, exprs: &[&Box<Expr>]) -> fmt::Result {
@@ -39,10 +37,7 @@ impl fmt::Display for Expr {
                 right,
             } => parenthesize(f, &operator.lexeme, &[left, right]),
             Expr::Grouping { expression } => parenthesize(f, "group", &[expression]),
-            Expr::Literal { value } => match value {
-                Some(value) => write!(f, "{}", value),
-                None => write!(f, "nil"),
-            },
+            Expr::Literal { value } => write!(f, "{}", value),
             Expr::Unary { operator, right } => parenthesize(f, &operator.lexeme, &[right]),
         }
     }
@@ -50,6 +45,8 @@ impl fmt::Display for Expr {
 
 #[cfg(test)]
 mod tests {
+    use crate::token_type::TokenType;
+
     use super::*;
 
     #[test]
@@ -59,13 +56,13 @@ mod tests {
             left: Box::new(Expr::Unary {
                 operator: Token::new(TokenType::Minus, "-", None, 1),
                 right: Box::new(Expr::Literal {
-                    value: Some(Literal::Number(123.0)),
+                    value: Literal::Number(123.0),
                 }),
             }),
             operator: Token::new(TokenType::Star, "*", None, 1),
             right: Box::new(Expr::Grouping {
                 expression: Box::new(Expr::Literal {
-                    value: Some(Literal::Number(45.67)),
+                    value: Literal::Number(45.67),
                 }),
             }),
         };

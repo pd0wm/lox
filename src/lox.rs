@@ -1,11 +1,11 @@
 use std::io::{BufRead, Write};
 
 use crate::lox_error::LoxError;
+use crate::parser::Parser;
 use crate::scanner::Scanner;
 
 #[derive(Default)]
 pub struct Lox {
-    cur_line: u64,
 }
 
 impl Lox {
@@ -42,10 +42,11 @@ impl Lox {
 
     fn run(&self, source: &str) -> Result<(), LoxError> {
         let mut scanner = Scanner::new(source);
+        let tokens = scanner.scan_tokens()?;
+        let mut parser = Parser::new(&tokens);
+        let expression = parser.parse()?;
 
-        for token in scanner.scan_tokens()? {
-            println!("{}", token);
-        }
+        println!("{}", expression);
 
         Ok(())
     }

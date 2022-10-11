@@ -6,6 +6,7 @@ use std::process::ExitCode;
 mod expr;
 mod lox;
 mod lox_error;
+mod parser;
 mod scanner;
 mod token;
 mod token_type;

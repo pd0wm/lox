@@ -3,6 +3,8 @@ use std::fmt;
 
 #[derive(Clone)]
 pub enum Literal {
+    None,
+    Bool(bool),
     String(String),
     Number(f64),
 }
@@ -12,6 +14,8 @@ impl fmt::Display for Literal {
         match self {
             Literal::String(t) => write!(f, "{}", t),
             Literal::Number(n) => write!(f, "{}", n),
+            Literal::Bool(b) => write!(f, "{}", b),
+            Literal::None => write!(f, "nil"),
         }
     }
 }
@@ -21,7 +25,7 @@ pub struct Token {
     pub type_: TokenType,
     pub lexeme: String,
     pub literal: Option<Literal>,
-    line: usize,
+    pub line: usize,
 }
 
 impl Token {
