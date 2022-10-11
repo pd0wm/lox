@@ -117,3 +117,33 @@ pub fn interpret(expression: Box<Expr>) -> Result<(), LoxError> {
 
     Ok(())
 }
+
+
+#[cfg(test)]
+mod tests {
+    use crate::token::{Token, Literal};
+    use crate::token_type::TokenType;
+
+    use super::*;
+
+    #[test]
+    fn test_fmt() {
+        // Example from 5.4
+        let expression = Expr::Binary {
+            left: Box::new(Expr::Unary {
+                operator: Token::new(TokenType::Minus, "-", None, 1),
+                right: Box::new(Expr::Literal {
+                    value: Literal::Number(123.0),
+                }),
+            }),
+            operator: Token::new(TokenType::Star, "*", None, 1),
+            right: Box::new(Expr::Grouping {
+                expression: Box::new(Expr::Literal {
+                    value: Literal::Number(45.67),
+                }),
+            }),
+        };
+
+        assert_eq!(Literal::Number(-123.0 * 45.67), evaluate(Box::new(expression)).unwrap());
+    }
+}
