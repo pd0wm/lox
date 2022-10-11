@@ -29,7 +29,30 @@ fn evaluate(expression: Box<Expr>) -> Result<Literal, LoxError> {
                 _ => unreachable!(),
             }
         }
-        _ => Err(LoxError::new(0, "unimplented expression")),
+        Expr::Binary {
+            left,
+            operator,
+            right,
+        } => {
+            let left = evaluate(left)?;
+            let right = evaluate(right)?;
+
+            match operator.type_ {
+                TokenType::Minus => {
+                    // Can this be cleaned up?
+                    if let Literal::Number(left) = left {
+                        if let Literal::Number(right) = right {
+                            Ok(Literal::Number(left - right))
+                        } else {
+                            Err(LoxError::new(0, "- on non number type"))
+                        }
+                    } else {
+                        Err(LoxError::new(0, "- on non number type"))
+                    }
+                }
+                _ => unreachable!(),
+            }
+        }
     }
 }
 
