@@ -106,6 +106,12 @@ impl From<RuntimeError> for LoxError {
     }
 }
 
+impl From<ScannerError> for LoxError {
+    fn from(err: ScannerError) -> LoxError {
+        LoxError::Scanner(err)
+    }
+}
+
 impl From<ParserError> for LoxError {
     fn from(err: ParserError) -> LoxError {
         LoxError::Parser(err)

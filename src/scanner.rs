@@ -133,10 +133,7 @@ impl Scanner {
                 } else if c.is_ascii_alphabetic() {
                     self.identifier()
                 } else {
-                    Err(LoxError::Scanner(ScannerError::new(
-                        self.line,
-                        "Unexpected character.",
-                    )))
+                    Err(ScannerError::new(self.line, "Unexpected character."))
                 }
             }
         }
