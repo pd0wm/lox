@@ -36,7 +36,6 @@ impl ScannerError {
             message: message.to_string(),
         }
     }
-
 }
 
 impl ParserError {
@@ -59,11 +58,7 @@ impl RuntimeError {
 
 impl fmt::Display for RuntimeError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "{}\n[line {}]",
-            self.message, self.token.line,
-        )
+        write!(f, "{}\n[line {}]", self.message, self.token.line,)
     }
 }
 
@@ -81,18 +76,13 @@ impl fmt::Display for ParserError {
                 "[line {}] Error at '{}': {}",
                 self.token.line, self.token.lexeme, self.message
             )
-
         }
     }
 }
 
 impl fmt::Display for ScannerError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "[line {}] Error: {}",
-            self.line, self.message
-        )
+        write!(f, "[line {}] Error: {}", self.line, self.message)
     }
 }
 

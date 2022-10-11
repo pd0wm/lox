@@ -11,7 +11,7 @@ fn is_truthy(val: Literal) -> bool {
     }
 }
 
-fn is_equal(left: Literal, right: Literal) -> bool{
+fn is_equal(left: Literal, right: Literal) -> bool {
     match (left, right) {
         (Literal::None, Literal::None) => true,
         (Literal::Bool(left), Literal::Bool(right)) => left == right,
@@ -33,7 +33,10 @@ fn evaluate(expression: Box<Expr>) -> Result<Literal, LoxError> {
                     if let Literal::Number(right) = right {
                         Ok(Literal::Number(-right))
                     } else {
-                        Err(LoxError::Runtime(RuntimeError::new(operator, "Operand must be a number.")))
+                        Err(LoxError::Runtime(RuntimeError::new(
+                            operator,
+                            "Operand must be a number.",
+                        )))
                     }
                 }
                 TokenType::Bang => Ok(Literal::Bool(!is_truthy(right))),
@@ -53,19 +56,28 @@ fn evaluate(expression: Box<Expr>) -> Result<Literal, LoxError> {
                     (Literal::Number(left), Literal::Number(right)) => {
                         Ok(Literal::Number(left - right))
                     }
-                    _ => Err(LoxError::Runtime(RuntimeError::new(operator, "Operands must be numbers."))),
+                    _ => Err(LoxError::Runtime(RuntimeError::new(
+                        operator,
+                        "Operands must be numbers.",
+                    ))),
                 },
                 TokenType::Slash => match (left, right) {
                     (Literal::Number(left), Literal::Number(right)) => {
                         Ok(Literal::Number(left / right))
                     }
-                    _ => Err(LoxError::Runtime(RuntimeError::new(operator, "Operands must be numbers."))),
+                    _ => Err(LoxError::Runtime(RuntimeError::new(
+                        operator,
+                        "Operands must be numbers.",
+                    ))),
                 },
                 TokenType::Star => match (left, right) {
                     (Literal::Number(left), Literal::Number(right)) => {
                         Ok(Literal::Number(left * right))
                     }
-                    _ => Err(LoxError::Runtime(RuntimeError::new(operator, "Operands must be numbers."))),
+                    _ => Err(LoxError::Runtime(RuntimeError::new(
+                        operator,
+                        "Operands must be numbers.",
+                    ))),
                 },
                 TokenType::Plus => match (left, right) {
                     (Literal::Number(left), Literal::Number(right)) => {
@@ -74,31 +86,46 @@ fn evaluate(expression: Box<Expr>) -> Result<Literal, LoxError> {
                     (Literal::String(left), Literal::String(right)) => {
                         Ok(Literal::String(left + &right))
                     }
-                    _ => Err(LoxError::Runtime(RuntimeError::new(operator, "Operands must be two numbers or two strings."))),
+                    _ => Err(LoxError::Runtime(RuntimeError::new(
+                        operator,
+                        "Operands must be two numbers or two strings.",
+                    ))),
                 },
                 TokenType::Greater => match (left, right) {
                     (Literal::Number(left), Literal::Number(right)) => {
                         Ok(Literal::Bool(left > right))
                     }
-                    _ => Err(LoxError::Runtime(RuntimeError::new(operator, "Operands must be numbers."))),
+                    _ => Err(LoxError::Runtime(RuntimeError::new(
+                        operator,
+                        "Operands must be numbers.",
+                    ))),
                 },
                 TokenType::GreaterEqual => match (left, right) {
                     (Literal::Number(left), Literal::Number(right)) => {
                         Ok(Literal::Bool(left >= right))
                     }
-                    _ => Err(LoxError::Runtime(RuntimeError::new(operator, "Operands must be numbers."))),
+                    _ => Err(LoxError::Runtime(RuntimeError::new(
+                        operator,
+                        "Operands must be numbers.",
+                    ))),
                 },
                 TokenType::Less => match (left, right) {
                     (Literal::Number(left), Literal::Number(right)) => {
                         Ok(Literal::Bool(left < right))
                     }
-                    _ => Err(LoxError::Runtime(RuntimeError::new(operator, "Operands must be numbers."))),
+                    _ => Err(LoxError::Runtime(RuntimeError::new(
+                        operator,
+                        "Operands must be numbers.",
+                    ))),
                 },
                 TokenType::LessEqual => match (left, right) {
                     (Literal::Number(left), Literal::Number(right)) => {
                         Ok(Literal::Bool(left <= right))
                     }
-                    _ => Err(LoxError::Runtime(RuntimeError::new(operator, "Operands must be numbers."))),
+                    _ => Err(LoxError::Runtime(RuntimeError::new(
+                        operator,
+                        "Operands must be numbers.",
+                    ))),
                 },
                 TokenType::BangEqual => Ok(Literal::Bool(!is_equal(left, right))),
                 TokenType::EqualEqual => Ok(Literal::Bool(is_equal(left, right))),

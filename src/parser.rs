@@ -109,7 +109,10 @@ impl Parser {
             self.consume(TokenType::RightParen, "Expect ')' after expression.")?;
             Ok(Box::new(Expr::Grouping { expression }))
         } else {
-            Err(LoxError::Parser(ParserError::new(self.peek(), "Expect expression.")))
+            Err(LoxError::Parser(ParserError::new(
+                self.peek(),
+                "Expect expression.",
+            )))
         }
     }
 
