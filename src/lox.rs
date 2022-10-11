@@ -30,7 +30,9 @@ impl Lox {
 
         for line in stdin.lock().lines() {
             if let Ok(line) = line {
-                self.run(&line)?;
+                if let Err(e) = self.run(&line) {
+                    println!("{}", e);
+                };
             } else {
                 break;
             }
