@@ -17,7 +17,6 @@ fn is_equal(left: Literal, right: Literal) -> bool {
         (Literal::Bool(left), Literal::Bool(right)) => left == right,
         (Literal::Number(left), Literal::Number(right)) => left == right,
         (Literal::String(left), Literal::String(right)) => left == right,
-        (Literal::None, _) => false, // redundant?
         (_, _) => false,
     }
 }
