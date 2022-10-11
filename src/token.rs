@@ -1,4 +1,4 @@
-use crate::token_type::TokenType;
+use crate::{token_type::TokenType, lox_error::LoxError};
 use std::fmt;
 
 #[derive(Clone)]
@@ -7,6 +7,16 @@ pub enum Literal {
     Bool(bool),
     String(String),
     Number(f64),
+}
+
+impl Literal {
+    pub fn number(&self) -> Result<f64, LoxError> {
+        if let Self::Number(n) = self {
+            Ok(*n)
+        } else {
+            Err(LoxError::new(0, "operation only valid on numbers"))
+        }
+    }
 }
 
 impl fmt::Display for Literal {

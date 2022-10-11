@@ -18,13 +18,7 @@ fn evaluate(expression: Box<Expr>) -> Result<Literal, LoxError> {
         Expr::Unary { operator, right } => {
             let right = evaluate(right)?;
             match operator.type_ {
-                TokenType::Minus => {
-                    if let Literal::Number(right) = right {
-                        Ok(Literal::Number(-right))
-                    } else {
-                        Err(LoxError::new(0, "- on non number type"))
-                    }
-                }
+                TokenType::Minus => Ok(Literal::Number(-right.number()?)),
                 TokenType::Bang => Ok(Literal::Bool(!is_truthy(right))),
                 _ => unreachable!(),
             }
@@ -38,18 +32,7 @@ fn evaluate(expression: Box<Expr>) -> Result<Literal, LoxError> {
             let right = evaluate(right)?;
 
             match operator.type_ {
-                TokenType::Minus => {
-                    // Can this be cleaned up?
-                    if let Literal::Number(left) = left {
-                        if let Literal::Number(right) = right {
-                            Ok(Literal::Number(left - right))
-                        } else {
-                            Err(LoxError::new(0, "- on non number type"))
-                        }
-                    } else {
-                        Err(LoxError::new(0, "- on non number type"))
-                    }
-                }
+                TokenType::Minus => Ok(Literal::Number(left.number()? - right.number()?)),
                 _ => unreachable!(),
             }
         }
