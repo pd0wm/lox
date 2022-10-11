@@ -4,6 +4,7 @@ use clap::Parser;
 use std::process::ExitCode;
 
 mod expr;
+mod interpreter;
 mod lox;
 mod lox_error;
 mod parser;

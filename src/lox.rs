@@ -1,12 +1,12 @@
 use std::io::{BufRead, Write};
 
+use crate::interpreter::interpret;
 use crate::lox_error::LoxError;
 use crate::parser::Parser;
 use crate::scanner::Scanner;
 
 #[derive(Default)]
-pub struct Lox {
-}
+pub struct Lox {}
 
 impl Lox {
     pub fn new() -> Self {
@@ -44,9 +44,9 @@ impl Lox {
         let mut scanner = Scanner::new(source);
         let tokens = scanner.scan_tokens()?;
         let mut parser = Parser::new(&tokens);
-        let expression = parser.parse()?;
 
-        println!("{}", expression);
+        let expression = parser.parse()?;
+        interpret(expression)?;
 
         Ok(())
     }
