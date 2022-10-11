@@ -127,7 +127,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_fmt() {
+    fn test_evaluate() {
         // Example from 5.4
         let expression = Expr::Binary {
             left: Box::new(Expr::Unary {
