@@ -11,6 +11,17 @@ fn is_truthy(val: Literal) -> bool {
     }
 }
 
+fn is_equal(left: Literal, right: Literal) -> bool{
+    match (left, right) {
+        (Literal::None, Literal::None) => true,
+        (Literal::Bool(left), Literal::Bool(right)) => left == right,
+        (Literal::Number(left), Literal::Number(right)) => left == right,
+        (Literal::String(left), Literal::String(right)) => left == right,
+        (Literal::None, _) => false, // redundant?
+        (_, _) => false,
+    }
+}
+
 fn evaluate(expression: Box<Expr>) -> Result<Literal, LoxError> {
     match *expression {
         Expr::Literal { value } => Ok(value),
@@ -44,6 +55,53 @@ fn evaluate(expression: Box<Expr>) -> Result<Literal, LoxError> {
                     }
                     _ => Err(LoxError::new(0, "- on non number type")),
                 },
+                TokenType::Slash => match (left, right) {
+                    (Literal::Number(left), Literal::Number(right)) => {
+                        Ok(Literal::Number(left / right))
+                    }
+                    _ => Err(LoxError::new(0, "/ on non number type")),
+                },
+                TokenType::Star => match (left, right) {
+                    (Literal::Number(left), Literal::Number(right)) => {
+                        Ok(Literal::Number(left * right))
+                    }
+                    _ => Err(LoxError::new(0, "* on non number type")),
+                },
+                TokenType::Plus => match (left, right) {
+                    (Literal::Number(left), Literal::Number(right)) => {
+                        Ok(Literal::Number(left + right))
+                    }
+                    (Literal::String(left), Literal::String(right)) => {
+                        Ok(Literal::String(left + &right))
+                    }
+                    _ => Err(LoxError::new(0, "+ on non number or string type")),
+                },
+                TokenType::Greater => match (left, right) {
+                    (Literal::Number(left), Literal::Number(right)) => {
+                        Ok(Literal::Bool(left > right))
+                    }
+                    _ => Err(LoxError::new(0, "> on non number type")),
+                },
+                TokenType::GreaterEqual => match (left, right) {
+                    (Literal::Number(left), Literal::Number(right)) => {
+                        Ok(Literal::Bool(left >= right))
+                    }
+                    _ => Err(LoxError::new(0, ">= on non number type")),
+                },
+                TokenType::Less => match (left, right) {
+                    (Literal::Number(left), Literal::Number(right)) => {
+                        Ok(Literal::Bool(left < right))
+                    }
+                    _ => Err(LoxError::new(0, "< on non number type")),
+                },
+                TokenType::LessEqual => match (left, right) {
+                    (Literal::Number(left), Literal::Number(right)) => {
+                        Ok(Literal::Bool(left <= right))
+                    }
+                    _ => Err(LoxError::new(0, "< on non number type")),
+                },
+                TokenType::BangEqual => Ok(Literal::Bool(!is_equal(left, right))),
+                TokenType::EqualEqual => Ok(Literal::Bool(is_equal(left, right))),
                 _ => unreachable!(),
             }
         }
