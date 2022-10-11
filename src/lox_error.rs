@@ -5,13 +5,13 @@ use crate::token::Token;
 use crate::token_type::TokenType;
 
 #[derive(Debug, Clone)]
-pub struct RuntimeError {
+pub struct ParserError {
     token: Token,
     message: String,
 }
 
 #[derive(Debug, Clone)]
-pub struct ParserError {
+pub struct RuntimeError {
     token: Token,
     message: String,
 }
@@ -25,17 +25,8 @@ pub struct ScannerError {
 #[derive(Debug, Clone)]
 pub enum LoxError {
     Parser(ParserError),
-    Scanner(ScannerError),
     Runtime(RuntimeError),
-}
-
-impl ScannerError {
-    pub fn new(line: usize, message: &str) -> Self {
-        Self {
-            line,
-            message: message.to_string(),
-        }
-    }
+    Scanner(ScannerError),
 }
 
 impl ParserError {
@@ -56,9 +47,12 @@ impl RuntimeError {
     }
 }
 
-impl fmt::Display for RuntimeError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}\n[line {}]", self.message, self.token.line,)
+impl ScannerError {
+    pub fn new(line: usize, message: &str) -> Self {
+        Self {
+            line,
+            message: message.to_string(),
+        }
     }
 }
 
@@ -80,6 +74,12 @@ impl fmt::Display for ParserError {
     }
 }
 
+impl fmt::Display for RuntimeError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}\n[line {}]", self.message, self.token.line,)
+    }
+}
+
 impl fmt::Display for ScannerError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "[line {}] Error: {}", self.line, self.message)
@@ -98,7 +98,14 @@ impl fmt::Display for LoxError {
 
 impl Error for ParserError {}
 impl Error for RuntimeError {}
+impl Error for ScannerError {}
 impl Error for LoxError {}
+
+impl From<ParserError> for LoxError {
+    fn from(err: ParserError) -> LoxError {
+        LoxError::Parser(err)
+    }
+}
 
 impl From<RuntimeError> for LoxError {
     fn from(err: RuntimeError) -> LoxError {
@@ -109,11 +116,5 @@ impl From<RuntimeError> for LoxError {
 impl From<ScannerError> for LoxError {
     fn from(err: ScannerError) -> LoxError {
         LoxError::Scanner(err)
-    }
-}
-
-impl From<ParserError> for LoxError {
-    fn from(err: ParserError) -> LoxError {
-        LoxError::Parser(err)
     }
 }
