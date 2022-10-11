@@ -1,5 +1,5 @@
 use crate::expr::Expr;
-use crate::lox_error::LoxError;
+use crate::lox_error::{LoxError, ParserError};
 use crate::token::{Literal, Token};
 use crate::token_type::TokenType;
 
@@ -109,7 +109,7 @@ impl Parser {
             self.consume(TokenType::RightParen, "Expect ')' after expression.")?;
             Ok(Box::new(Expr::Grouping { expression }))
         } else {
-            Err(LoxError::error(self.peek(), "Expect expression."))
+            Err(ParserError::new(self.peek(), "Expect expression.").into())
         }
     }
 
@@ -159,7 +159,7 @@ impl Parser {
         if self.check(type_) {
             Ok(self.advance())
         } else {
-            Err(LoxError::error(self.peek(), message))
+            Err(ParserError::new(self.peek(), message).into())
         }
     }
 

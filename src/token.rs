@@ -1,7 +1,7 @@
 use crate::token_type::TokenType;
 use std::fmt;
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub enum Literal {
     None,
     Bool(bool),
@@ -20,7 +20,7 @@ impl fmt::Display for Literal {
     }
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct Token {
     pub type_: TokenType,
     pub lexeme: String,
