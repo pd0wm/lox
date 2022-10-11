@@ -21,7 +21,6 @@ impl Lox {
     }
 
     pub fn run_prompt(&self) -> Result<(), LoxError> {
-        println!("interactive mode");
         let stdin = std::io::stdin();
         let mut stdout = std::io::stdout();
 
@@ -31,7 +30,7 @@ impl Lox {
         for line in stdin.lock().lines() {
             if let Ok(line) = line {
                 if let Err(e) = self.run(&line) {
-                    println!("{}", e);
+                    eprintln!("{}", e);
                 };
             } else {
                 break;

@@ -36,7 +36,7 @@ fn main() -> ExitCode {
     match result {
         Ok(_) => ExitCode::SUCCESS,
         Err(e) => {
-            println!("{}", e);
+            eprintln!("{}", e);
             ExitCode::from(65)
         }
     }
