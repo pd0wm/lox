@@ -1,6 +1,7 @@
 #![feature(is_some_with)]
 
 use clap::Parser;
+use lox_error::LoxError;
 use std::process::ExitCode;
 
 mod ast;
@@ -36,9 +37,17 @@ fn main() -> ExitCode {
 
     match result {
         Ok(_) => ExitCode::SUCCESS,
-        Err(e) => {
+        Err(LoxError::Scanner(e)) => {
             eprintln!("{}", e);
             ExitCode::from(65)
+        },
+        Err(LoxError::Parser(e)) => {
+            eprintln!("{}", e);
+            ExitCode::from(65)
+        },
+        Err(LoxError::Runtime(e)) => {
+            eprintln!("{}", e);
+            ExitCode::from(70)
         }
     }
 }
