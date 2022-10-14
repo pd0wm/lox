@@ -28,29 +28,19 @@ pub struct Interpreter {
 }
 
 impl Interpreter {
+    #[allow(dead_code)]
     pub fn new() -> Self {
         Self {
             ..Default::default()
         }
     }
 
-    pub fn evaluate(&self, expression: Box<Expr>) -> Result<Literal, LoxError> {
+    pub fn evaluate(&mut self, expression: Box<Expr>) -> Result<Literal, LoxError> {
         match *expression {
-            Expr::Literal { value } => Ok(value),
-            Expr::Grouping { expression } => self.evaluate(expression),
-            Expr::Unary { operator, right } => {
-                let right = self.evaluate(right)?;
-                match operator.type_ {
-                    TokenType::Minus => {
-                        if let Literal::Number(right) = right {
-                            Ok(Literal::Number(-right))
-                        } else {
-                            Err(RuntimeError::new(operator, "Operand must be a number.").into())
-                        }
-                    }
-                    TokenType::Bang => Ok(Literal::Bool(!is_truthy(right))),
-                    _ => unreachable!(),
-                }
+            Expr::Assign { name, value } => {
+                let value = self.evaluate(value)?;
+                self.environment.assign(name, value.clone())?;
+                Ok(value)
             }
             Expr::Binary {
                 left,
@@ -120,10 +110,24 @@ impl Interpreter {
                     TokenType::EqualEqual => Ok(Literal::Bool(is_equal(left, right))),
                     _ => unreachable!(),
                 }
-            },
-            Expr::Variable { name } => {
-                Ok(self.environment.get(name)?)
-            },
+            }
+            Expr::Grouping { expression } => self.evaluate(expression),
+            Expr::Literal { value } => Ok(value),
+            Expr::Unary { operator, right } => {
+                let right = self.evaluate(right)?;
+                match operator.type_ {
+                    TokenType::Minus => {
+                        if let Literal::Number(right) = right {
+                            Ok(Literal::Number(-right))
+                        } else {
+                            Err(RuntimeError::new(operator, "Operand must be a number.").into())
+                        }
+                    }
+                    TokenType::Bang => Ok(Literal::Bool(!is_truthy(right))),
+                    _ => unreachable!(),
+                }
+            }
+            Expr::Variable { name } => Ok(self.environment.get(name)?),
         }
     }
 
@@ -135,7 +139,7 @@ impl Interpreter {
             Stmt::Print { expression } => {
                 let value = self.evaluate(expression)?;
                 println!("{}", value);
-            },
+            }
             Stmt::Var { name, initializer } => {
                 let value = match initializer {
                     Some(expression) => self.evaluate(expression)?,
@@ -181,7 +185,7 @@ mod tests {
             }),
         };
 
-        let interpreter = Interpreter::new();
+        let mut interpreter = Interpreter::new();
         assert_eq!(
             Literal::Number(-123.0 * 45.67),
             interpreter.evaluate(Box::new(expression)).unwrap()

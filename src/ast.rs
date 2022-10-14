@@ -3,6 +3,10 @@ use std::fmt;
 use crate::token::{Literal, Token};
 
 pub enum Expr {
+    Assign {
+        name: Token,
+        value: Box<Expr>,
+    },
     Binary {
         left: Box<Expr>,
         operator: Token,
@@ -47,6 +51,7 @@ fn parenthesize(f: &mut fmt::Formatter, name: &str, exprs: &[&Box<Expr>]) -> fmt
 impl fmt::Display for Expr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
+            Expr::Assign { name, value } => write!(f, "var {} = {}", name, value),
             Expr::Binary {
                 left,
                 operator,

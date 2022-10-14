@@ -88,7 +88,24 @@ impl Parser {
     }
 
     fn expression(&mut self) -> Result<Box<Expr>, LoxError> {
-        self.equality()
+        self.assignment()
+    }
+
+    fn assignment(&mut self) -> Result<Box<Expr>, LoxError> {
+        let expr = self.equality()?;
+
+        if self.match_(&[TokenType::Equal]) {
+            let equals = self.previous();
+            let value = self.assignment()?;
+
+            if let Expr::Variable { name } = *expr {
+                return Ok(Box::new(Expr::Assign { name, value }));
+            }
+
+            return Err(ParserError::new(equals, "Invalid assignement target.").into());
+        }
+
+        Ok(expr)
     }
 
     fn equality(&mut self) -> Result<Box<Expr>, LoxError> {
@@ -233,7 +250,6 @@ impl Parser {
         }
     }
 
-    #[allow(dead_code)]
     fn synchronize(&mut self) {
         self.advance();
 

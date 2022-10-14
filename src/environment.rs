@@ -12,6 +12,16 @@ impl Environment {
         self.values.insert(name.lexeme, value);
     }
 
+    pub fn assign(&mut self, name: Token, value: Literal) -> Result<(), LoxError> {
+        if self.values.contains_key(&name.lexeme) {
+            self.values.insert(name.lexeme, value);
+            Ok(())
+        } else {
+            let error_msg = format!("Undefined variable '{}'.", name.lexeme);
+            Err(RuntimeError::new(name, &error_msg).into())
+        }
+    }
+
     pub fn get(&self, name: Token) -> Result<Literal, LoxError> {
         match self.values.get(&name.lexeme) {
             Some(literal) => Ok(literal.clone()),
