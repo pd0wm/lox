@@ -28,6 +28,12 @@ pub struct Interpreter {
 }
 
 impl Interpreter {
+    pub fn new() -> Self {
+        Self {
+            ..Default::default()
+        }
+    }
+
     pub fn evaluate(&self, expression: Box<Expr>) -> Result<Literal, LoxError> {
         match *expression {
             Expr::Literal { value } => Ok(value),
@@ -114,8 +120,10 @@ impl Interpreter {
                     TokenType::EqualEqual => Ok(Literal::Bool(is_equal(left, right))),
                     _ => unreachable!(),
                 }
-            }
-            Expr::Variable { name } => Ok(self.environment.get(name)?),
+            },
+            Expr::Variable { name } => {
+                Ok(self.environment.get(name)?)
+            },
         }
     }
 
@@ -127,7 +135,7 @@ impl Interpreter {
             Stmt::Print { expression } => {
                 let value = self.evaluate(expression)?;
                 println!("{}", value);
-            }
+            },
             Stmt::Var { name, initializer } => {
                 let value = match initializer {
                     Some(expression) => self.evaluate(expression)?,
