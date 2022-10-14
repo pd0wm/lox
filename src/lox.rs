@@ -46,8 +46,8 @@ impl Lox {
         let tokens = scanner.scan_tokens()?;
         let mut parser = Parser::new(&tokens);
 
-        let expression = parser.parse()?;
-        interpret(expression)?;
+        let statements = parser.parse()?;
+        interpret(statements)?;
 
         Ok(())
     }

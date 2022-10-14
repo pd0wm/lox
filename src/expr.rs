@@ -20,6 +20,11 @@ pub enum Expr {
     },
 }
 
+pub enum Stmt {
+    Expression(Box<Expr>),
+    Print(Box<Expr>),
+}
+
 fn parenthesize(f: &mut fmt::Formatter, name: &str, exprs: &[&Box<Expr>]) -> fmt::Result {
     write!(f, "({}", name)?;
     for expr in exprs {

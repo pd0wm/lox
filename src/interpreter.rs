@@ -1,4 +1,4 @@
-use crate::expr::Expr;
+use crate::expr::{Expr, Stmt};
 use crate::lox_error::{LoxError, RuntimeError};
 use crate::token::Literal;
 use crate::token_type::TokenType;
@@ -111,17 +111,30 @@ fn evaluate(expression: Box<Expr>) -> Result<Literal, LoxError> {
     }
 }
 
-pub fn interpret(expression: Box<Expr>) -> Result<(), LoxError> {
-    let value = evaluate(expression)?;
-    println!("{}", value);
+fn execute(statement: Stmt) -> Result<(), LoxError> {
+    match statement {
+        Stmt::Expression(expr) => {
+            evaluate(expr)?;
+        }
+        Stmt::Print(expr) => {
+            let value = evaluate(expr)?;
+            println!("{}", value);
+        }
+    }
+    Ok(())
+}
+
+pub fn interpret(statements: Vec<Stmt>) -> Result<(), LoxError> {
+    for statement in statements {
+        execute(statement)?;
+    }
 
     Ok(())
 }
 
-
 #[cfg(test)]
 mod tests {
-    use crate::token::{Token, Literal};
+    use crate::token::{Literal, Token};
     use crate::token_type::TokenType;
 
     use super::*;
@@ -144,6 +157,9 @@ mod tests {
             }),
         };
 
-        assert_eq!(Literal::Number(-123.0 * 45.67), evaluate(Box::new(expression)).unwrap());
+        assert_eq!(
+            Literal::Number(-123.0 * 45.67),
+            evaluate(Box::new(expression)).unwrap()
+        );
     }
 }
