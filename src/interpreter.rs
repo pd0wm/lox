@@ -1,4 +1,4 @@
-use crate::expr::{Expr, Stmt};
+use crate::ast::{Expr, Stmt};
 use crate::lox_error::{LoxError, RuntimeError};
 use crate::token::Literal;
 use crate::token_type::TokenType;

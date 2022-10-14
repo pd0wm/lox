@@ -3,7 +3,7 @@
 use clap::Parser;
 use std::process::ExitCode;
 
-mod expr;
+mod ast;
 mod interpreter;
 mod lox;
 mod lox_error;
