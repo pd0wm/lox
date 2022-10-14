@@ -21,30 +21,16 @@ impl Parser {
         let mut statements = Vec::new();
 
         while !self.is_at_end() {
-            if let Some(statement) = self.declaration() {
-                statements.push(statement);
-            }
-            // statements.push(self.declaration()?);
+            statements.push(self.declaration()?);
         }
         Ok(statements)
     }
 
-    fn declaration(&mut self) -> Option<Stmt> {
-        let result = {
-            if self.match_(&[TokenType::Var]) {
-                self.var_declaration()
-            } else {
-                self.statement()
-            }
-        };
-
-        match result {
-            Ok(statement) => Some(statement),
-            Err(e) => {
-                println!("{}", e);
-                self.synchronize();
-                None
-            }
+    fn declaration(&mut self) -> Result<Stmt, LoxError> {
+        if self.match_(&[TokenType::Var]) {
+            self.var_declaration()
+        } else {
+            self.statement()
         }
     }
 
@@ -102,7 +88,7 @@ impl Parser {
                 return Ok(Box::new(Expr::Assign { name, value }));
             }
 
-            return Err(ParserError::new(equals, "Invalid assignement target.").into());
+            return Err(ParserError::new(equals, "Invalid assignment target.").into());
         }
 
         Ok(expr)
@@ -250,6 +236,7 @@ impl Parser {
         }
     }
 
+    #[allow(dead_code)]
     fn synchronize(&mut self) {
         self.advance();
 
