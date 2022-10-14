@@ -1,12 +1,14 @@
 use std::io::{BufRead, Write};
 
-use crate::interpreter::interpret;
+use crate::interpreter::Interpreter;
 use crate::lox_error::LoxError;
 use crate::parser::Parser;
 use crate::scanner::Scanner;
 
 #[derive(Default)]
-pub struct Lox {}
+pub struct Lox {
+    interpreter: Interpreter,
+}
 
 impl Lox {
     pub fn new() -> Self {
@@ -15,12 +17,12 @@ impl Lox {
         }
     }
 
-    pub fn run_file(&self, path: &std::path::Path) -> Result<(), LoxError> {
+    pub fn run_file(&mut self, path: &std::path::Path) -> Result<(), LoxError> {
         let contents = std::fs::read_to_string(path).expect("Failed to read source");
         self.run(&contents)
     }
 
-    pub fn run_prompt(&self) -> Result<(), LoxError> {
+    pub fn run_prompt(&mut self) -> Result<(), LoxError> {
         let stdin = std::io::stdin();
         let mut stdout = std::io::stdout();
 
@@ -41,13 +43,13 @@ impl Lox {
         Ok(())
     }
 
-    fn run(&self, source: &str) -> Result<(), LoxError> {
+    fn run(&mut self, source: &str) -> Result<(), LoxError> {
         let mut scanner = Scanner::new(source);
         let tokens = scanner.scan_tokens()?;
         let mut parser = Parser::new(&tokens);
 
         let statements = parser.parse()?;
-        interpret(statements)?;
+        self.interpreter.interpret(statements)?;
 
         Ok(())
     }

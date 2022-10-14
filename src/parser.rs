@@ -21,9 +21,31 @@ impl Parser {
         let mut statements = Vec::new();
 
         while !self.is_at_end() {
-            statements.push(self.statement()?);
+            if let Some(statement) = self.declaration() {
+                statements.push(statement);
+            }
+            // statements.push(self.declaration()?);
         }
         Ok(statements)
+    }
+
+    fn declaration(&mut self) -> Option<Stmt> {
+        let result = {
+            if self.match_(&[TokenType::Var]) {
+                self.var_declaration()
+            } else {
+                self.statement()
+            }
+        };
+
+        match result {
+            Ok(statement) => Some(statement),
+            Err(e) => {
+                println!("{}", e);
+                self.synchronize();
+                None
+            }
+        }
     }
 
     fn statement(&mut self) -> Result<Stmt, LoxError> {
@@ -38,14 +60,31 @@ impl Parser {
         let value = self.expression()?;
         self.consume(TokenType::Semicolon, "Expect ';' after value.")?;
 
-        Ok(Stmt::Print(value))
+        Ok(Stmt::Print { expression: value })
+    }
+
+    fn var_declaration(&mut self) -> Result<Stmt, LoxError> {
+        let name = self.consume(TokenType::Identifier, "Expect variable name.")?;
+
+        let initializer = if self.match_(&[TokenType::Equal]) {
+            Some(self.expression()?)
+        } else {
+            None
+        };
+
+        self.consume(
+            TokenType::Semicolon,
+            "Expect ';' after variable declaration.",
+        )?;
+
+        Ok(Stmt::Var { name, initializer })
     }
 
     fn expression_statement(&mut self) -> Result<Stmt, LoxError> {
         let expr = self.expression()?;
         self.consume(TokenType::Semicolon, "Expect ';' after expression.")?;
 
-        Ok(Stmt::Expression(expr))
+        Ok(Stmt::Expression { expression: expr })
     }
 
     fn expression(&mut self) -> Result<Box<Expr>, LoxError> {
@@ -130,6 +169,10 @@ impl Parser {
         } else if self.match_(&[TokenType::Number, TokenType::String]) {
             Ok(Box::new(Expr::Literal {
                 value: self.previous().literal.unwrap(),
+            }))
+        } else if self.match_(&[TokenType::Identifier]) {
+            Ok(Box::new(Expr::Variable {
+                name: self.previous(),
             }))
         } else if self.match_(&[TokenType::LeftParen]) {
             let expression = self.expression()?;

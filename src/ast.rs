@@ -18,11 +18,22 @@ pub enum Expr {
         operator: Token,
         right: Box<Expr>,
     },
+    Variable {
+        name: Token,
+    },
 }
 
 pub enum Stmt {
-    Expression(Box<Expr>),
-    Print(Box<Expr>),
+    Expression {
+        expression: Box<Expr>,
+    },
+    Print {
+        expression: Box<Expr>,
+    },
+    Var {
+        name: Token,
+        initializer: Option<Box<Expr>>,
+    },
 }
 
 fn parenthesize(f: &mut fmt::Formatter, name: &str, exprs: &[&Box<Expr>]) -> fmt::Result {
@@ -44,6 +55,7 @@ impl fmt::Display for Expr {
             Expr::Grouping { expression } => parenthesize(f, "group", &[expression]),
             Expr::Literal { value } => write!(f, "{}", value),
             Expr::Unary { operator, right } => parenthesize(f, &operator.lexeme, &[right]),
+            Expr::Variable { name } => write!(f, "var {}", name),
         }
     }
 }

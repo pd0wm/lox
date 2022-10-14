@@ -4,6 +4,7 @@ use clap::Parser;
 use std::process::ExitCode;
 
 mod ast;
+mod environment;
 mod interpreter;
 mod lox;
 mod lox_error;
@@ -24,7 +25,7 @@ struct Args {
 
 fn main() -> ExitCode {
     let args = Args::parse();
-    let lox = Lox::new();
+    let mut lox = Lox::new();
 
     let result = if let Some(script) = args.script {
         let path = std::path::Path::new(&script);
