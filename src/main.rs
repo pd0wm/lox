@@ -40,11 +40,11 @@ fn main() -> ExitCode {
         Err(LoxError::Scanner(e)) => {
             eprintln!("{}", e);
             ExitCode::from(65)
-        },
+        }
         Err(LoxError::Parser(e)) => {
             eprintln!("{}", e);
             ExitCode::from(65)
-        },
+        }
         Err(LoxError::Runtime(e)) => {
             eprintln!("{}", e);
             ExitCode::from(70)
