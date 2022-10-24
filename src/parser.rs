@@ -35,7 +35,9 @@ impl Parser {
     }
 
     fn statement(&mut self) -> Result<Stmt, LoxError> {
-        if self.match_(&[TokenType::If]) {
+        if self.match_(&[TokenType::For]) {
+            self.for_statement()
+        } else if self.match_(&[TokenType::If]) {
             self.if_statement()
         } else if self.match_(&[TokenType::Print]) {
             self.print_statement()
@@ -48,6 +50,56 @@ impl Parser {
         } else {
             self.expression_statement()
         }
+    }
+
+    fn for_statement(&mut self) -> Result<Stmt, LoxError> {
+        self.consume(TokenType::LeftParen, "Expect '(' after 'for'.")?;
+        let initializer = if self.match_(&[TokenType::Semicolon]) {
+            None
+        } else if self.match_(&[TokenType::Var]) {
+            Some(self.var_declaration()?)
+        } else {
+            Some(self.expression_statement()?)
+        };
+
+        let condition = if self.check(TokenType::Semicolon) {
+            Box::new(Expr::Literal { value: Literal::Bool(true) })
+        } else {
+            self.expression()?
+        };
+        self.consume(TokenType::Semicolon, "Expect ';' after loop condition.")?;
+
+        let increment = if self.check(TokenType::RightParen) {
+            None
+        } else {
+            Some(self.expression()?)
+        };
+        self.consume(TokenType::RightParen, "Expect ')' after for clauses.")?;
+        let mut body = self.statement()?;
+
+        if let Some(increment) = increment {
+            body = Stmt::Block {
+                statements: vec![
+                    Box::new(body),
+                    Box::new(Stmt::Expression {
+                        expression: increment,
+                    }),
+                ],
+            };
+        };
+
+        body = Stmt::While { condition, body: Box::new(body) };
+
+        if let Some(initializer) = initializer {
+            body = Stmt::Block {
+                statements: vec![
+                    Box::new(initializer),
+                    Box::new(body),
+                ],
+            };
+        }
+
+        Ok(body)
     }
 
     fn if_statement(&mut self) -> Result<Stmt, LoxError> {
