@@ -37,11 +37,11 @@ impl Interpreter {
         }
     }
 
-    pub fn evaluate(&mut self, expression: Box<Expr>) -> Result<Literal, LoxError> {
-        match *expression {
+    pub fn evaluate(&mut self, expression: &Box<Expr>) -> Result<Literal, LoxError> {
+        match &**expression {
             Expr::Assign { name, value } => {
-                let value = self.evaluate(value)?;
-                self.environment.assign(name, value.clone())?;
+                let value = self.evaluate(&value)?;
+                self.environment.assign(name, &value)?;
                 Ok(value)
             }
             Expr::Binary {
@@ -49,8 +49,8 @@ impl Interpreter {
                 operator,
                 right,
             } => {
-                let left = self.evaluate(left)?;
-                let right = self.evaluate(right)?;
+                let left = self.evaluate(&left)?;
+                let right = self.evaluate(&right)?;
 
                 match operator.type_ {
                     TokenType::Minus => match (left, right) {
@@ -113,34 +113,34 @@ impl Interpreter {
                     _ => unreachable!(),
                 }
             }
-            Expr::Grouping { expression } => self.evaluate(expression),
-            Expr::Literal { value } => Ok(value),
+            Expr::Grouping { expression } => self.evaluate(&expression),
+            Expr::Literal { value } => Ok(value.clone()),
             Expr::Logical {
                 left,
                 operator,
                 right,
             } => {
-                let left = self.evaluate(left)?;
+                let left = self.evaluate(&left)?;
                 Ok(match operator.type_ {
                     TokenType::Or => {
                         if is_truthy(&left) {
                             left
                         } else {
-                            self.evaluate(right)?
+                            self.evaluate(&right)?
                         }
                     }
                     TokenType::And => {
                         if !is_truthy(&left) {
                             left
                         } else {
-                            self.evaluate(right)?
+                            self.evaluate(&right)?
                         }
                     }
                     _ => unreachable!(),
                 })
             }
             Expr::Unary { operator, right } => {
-                let right = self.evaluate(right)?;
+                let right = self.evaluate(&right)?;
                 match operator.type_ {
                     TokenType::Minus => {
                         if let Literal::Number(right) = right {
@@ -157,42 +157,47 @@ impl Interpreter {
         }
     }
 
-    pub fn execute(&mut self, statement: Stmt) -> Result<(), LoxError> {
+    pub fn execute(&mut self, statement: &Stmt) -> Result<(), LoxError> {
         match statement {
             Stmt::Block { statements } => {
                 let mut env = Environment::new(&self.environment);
                 mem::swap(&mut self.environment, &mut env);
 
                 for statement in statements {
-                    self.execute(*statement)?;
+                    self.execute(statement)?;
                 }
 
                 mem::swap(&mut self.environment, &mut env);
             }
             Stmt::Expression { expression } => {
-                self.evaluate(expression)?;
+                self.evaluate(&expression)?;
             }
             Stmt::If {
                 condition,
                 then_branch,
                 else_branch,
             } => {
-                if is_truthy(&self.evaluate(condition)?) {
-                    self.execute(*then_branch)?
-                } else if else_branch.is_some() {
-                    self.execute(*else_branch.unwrap())?
+                if is_truthy(&self.evaluate(&condition)?) {
+                    self.execute(then_branch)?
+                } else if let Some(else_branch) = else_branch {
+                    self.execute(else_branch)?
                 }
             }
             Stmt::Print { expression } => {
-                let value = self.evaluate(expression)?;
+                let value = self.evaluate(&expression)?;
                 println!("{}", value);
             }
             Stmt::Var { name, initializer } => {
                 let value = match initializer {
-                    Some(expression) => self.evaluate(expression)?,
+                    Some(expression) => self.evaluate(&expression)?,
                     None => Literal::None,
                 };
-                self.environment.define(name, value);
+                self.environment.define(&name, &value);
+            }
+            Stmt::While { condition, body } => {
+                while is_truthy(&self.evaluate(&condition)?) {
+                    self.execute(body)?;
+                }
             }
         }
         Ok(())
@@ -200,7 +205,7 @@ impl Interpreter {
 
     pub fn interpret(&mut self, statements: Vec<Stmt>) -> Result<(), LoxError> {
         for statement in statements {
-            self.execute(statement)?;
+            self.execute(&statement)?;
         }
 
         Ok(())
@@ -235,7 +240,7 @@ mod tests {
         let mut interpreter = Interpreter::new();
         assert_eq!(
             Literal::Number(-123.0 * 45.67),
-            interpreter.evaluate(Box::new(expression)).unwrap()
+            interpreter.evaluate(&Box::new(expression)).unwrap()
         );
     }
 }

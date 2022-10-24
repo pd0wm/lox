@@ -39,6 +39,8 @@ impl Parser {
             self.if_statement()
         } else if self.match_(&[TokenType::Print]) {
             self.print_statement()
+        } else if self.match_(&[TokenType::While]) {
+            self.while_statement()
         } else if self.match_(&[TokenType::LeftBrace]) {
             return Ok(Stmt::Block {
                 statements: self.block()?,
@@ -72,6 +74,15 @@ impl Parser {
         self.consume(TokenType::Semicolon, "Expect ';' after value.")?;
 
         Ok(Stmt::Print { expression: value })
+    }
+
+    fn while_statement(&mut self) -> Result<Stmt, LoxError> {
+        self.consume(TokenType::LeftParen, "Expect '(' after while.")?;
+        let condition = self.expression()?;
+        self.consume(TokenType::RightParen, "Expect ')' after condition.")?;
+        let body = Box::new(self.statement()?);
+
+        Ok(Stmt::While { condition, body })
     }
 
     fn block(&mut self) -> Result<Vec<Box<Stmt>>, LoxError> {
@@ -124,7 +135,7 @@ impl Parser {
                 return Ok(Box::new(Expr::Assign { name, value }));
             }
 
-            return Err(ParserError::new(equals, "Invalid assignment target.").into());
+            return Err(ParserError::new(&equals, "Invalid assignment target.").into());
         }
 
         Ok(expr)
@@ -250,7 +261,7 @@ impl Parser {
             self.consume(TokenType::RightParen, "Expect ')' after expression.")?;
             Ok(Box::new(Expr::Grouping { expression }))
         } else {
-            Err(ParserError::new(self.peek(), "Expect expression.").into())
+            Err(ParserError::new(&self.peek(), "Expect expression.").into())
         }
     }
 
@@ -300,7 +311,7 @@ impl Parser {
         if self.check(type_) {
             Ok(self.advance())
         } else {
-            Err(ParserError::new(self.peek(), message).into())
+            Err(ParserError::new(&self.peek(), message).into())
         }
     }
 

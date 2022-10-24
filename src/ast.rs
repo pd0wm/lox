@@ -51,6 +51,10 @@ pub enum Stmt {
         name: Token,
         initializer: Option<Box<Expr>>,
     },
+    While {
+        condition: Box<Expr>,
+        body: Box<Stmt>,
+    },
 }
 
 fn parenthesize(f: &mut fmt::Formatter, name: &str, exprs: &[&Box<Expr>]) -> fmt::Result {

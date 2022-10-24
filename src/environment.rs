@@ -16,17 +16,17 @@ impl Environment {
         }
     }
 
-    pub fn define(&mut self, name: Token, value: Literal) {
-        self.values.insert(name.lexeme, value);
+    pub fn define(&mut self, name: &Token, value: &Literal) {
+        self.values.insert(name.lexeme.clone(), value.clone());
     }
 
-    pub fn assign(&mut self, name: Token, value: Literal) -> Result<(), LoxError> {
+    pub fn assign(&mut self, name: &Token, value: &Literal) -> Result<(), LoxError> {
         if self.values.contains_key(&name.lexeme) {
-            self.values.insert(name.lexeme, value);
+            self.values.insert(name.lexeme.clone(), value.clone());
             Ok(())
         } else {
             match &mut self.enclosing {
-                Some(enclosing) => enclosing.assign(name, value),
+                Some(enclosing) => enclosing.assign(name, &value),
                 _ => {
                     let error_msg = format!("Undefined variable '{}'.", name.lexeme);
                     Err(RuntimeError::new(name, &error_msg).into())
@@ -35,11 +35,11 @@ impl Environment {
         }
     }
 
-    pub fn get(&self, name: Token) -> Result<Literal, LoxError> {
+    pub fn get(&self, name: &Token) -> Result<Literal, LoxError> {
         match self.values.get(&name.lexeme) {
             Some(literal) => Ok(literal.clone()),
             None => match &self.enclosing {
-                Some(enclosing) => enclosing.get(name),
+                Some(enclosing) => enclosing.get(&name),
                 _ => {
                     let error_msg = format!("Undefined variable '{}'.", name.lexeme);
                     Err(RuntimeError::new(name, &error_msg).into())

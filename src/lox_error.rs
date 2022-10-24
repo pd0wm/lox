@@ -30,18 +30,18 @@ pub enum LoxError {
 }
 
 impl ParserError {
-    pub fn new(token: Token, message: &str) -> Self {
+    pub fn new(token: &Token, message: &str) -> Self {
         Self {
-            token,
+            token: token.clone(),
             message: message.to_string(),
         }
     }
 }
 
 impl RuntimeError {
-    pub fn new(token: Token, message: &str) -> Self {
+    pub fn new(token: &Token, message: &str) -> Self {
         Self {
-            token,
+            token: token.clone(),
             message: message.to_string(),
         }
     }
