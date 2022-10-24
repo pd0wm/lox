@@ -148,6 +148,17 @@ impl Interpreter {
             Stmt::Expression { expression } => {
                 self.evaluate(expression)?;
             }
+            Stmt::If {
+                condition,
+                then_branch,
+                else_branch,
+            } => {
+                if is_truthy(self.evaluate(condition)?) {
+                    self.execute(*then_branch)?
+                } else if else_branch.is_some() {
+                    self.execute(*else_branch.unwrap())?
+                }
+            }
             Stmt::Print { expression } => {
                 let value = self.evaluate(expression)?;
                 println!("{}", value);
