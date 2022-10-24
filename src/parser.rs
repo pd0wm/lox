@@ -36,10 +36,14 @@ impl Parser {
 
     fn statement(&mut self) -> Result<Stmt, LoxError> {
         if self.match_(&[TokenType::Print]) {
-            return self.print_statement();
+            self.print_statement()
+        } else if self.match_(&[TokenType::LeftBrace]) {
+            return Ok(Stmt::Block {
+                statements: self.block()?,
+            });
+        } else {
+            self.expression_statement()
         }
-
-        self.expression_statement()
     }
 
     fn print_statement(&mut self) -> Result<Stmt, LoxError> {
@@ -47,6 +51,17 @@ impl Parser {
         self.consume(TokenType::Semicolon, "Expect ';' after value.")?;
 
         Ok(Stmt::Print { expression: value })
+    }
+
+    fn block(&mut self) -> Result<Vec<Box<Stmt>>, LoxError> {
+        let mut statements = Vec::new();
+
+        while !self.check(TokenType::RightBrace) && !self.is_at_end() {
+            statements.push(Box::new(self.declaration()?));
+        }
+
+        self.consume(TokenType::RightBrace, "Expect '}' after block.")?;
+        Ok(statements)
     }
 
     fn var_declaration(&mut self) -> Result<Stmt, LoxError> {

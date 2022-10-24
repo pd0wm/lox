@@ -28,6 +28,9 @@ pub enum Expr {
 }
 
 pub enum Stmt {
+    Block {
+        statements: Vec<Box<Stmt>>,
+    },
     Expression {
         expression: Box<Expr>,
     },

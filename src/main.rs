@@ -1,4 +1,4 @@
-#![feature(is_some_with)]
+#![feature(is_some_and)]
 
 use clap::Parser;
 use lox_error::LoxError;

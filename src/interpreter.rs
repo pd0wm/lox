@@ -1,3 +1,5 @@
+use std::mem;
+
 use crate::ast::{Expr, Stmt};
 use crate::environment::Environment;
 use crate::lox_error::{LoxError, RuntimeError};
@@ -133,6 +135,16 @@ impl Interpreter {
 
     pub fn execute(&mut self, statement: Stmt) -> Result<(), LoxError> {
         match statement {
+            Stmt::Block { statements } => {
+                let mut env = Environment::new(&self.environment);
+                mem::swap(&mut self.environment, &mut env);
+
+                for statement in statements {
+                    self.execute(*statement)?;
+                }
+
+                mem::swap(&mut self.environment, &mut env);
+            }
             Stmt::Expression { expression } => {
                 self.evaluate(expression)?;
             }
