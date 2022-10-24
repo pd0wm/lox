@@ -6,15 +6,15 @@ use crate::lox_error::{LoxError, RuntimeError};
 use crate::token::Literal;
 use crate::token_type::TokenType;
 
-fn is_truthy(val: Literal) -> bool {
+fn is_truthy(val: &Literal) -> bool {
     match val {
         Literal::None => false,
-        Literal::Bool(b) => b,
+        Literal::Bool(b) => *b,
         _ => true,
     }
 }
 
-fn is_equal(left: Literal, right: Literal) -> bool {
+fn is_equal(left: &Literal, right: &Literal) -> bool {
     match (left, right) {
         (Literal::None, Literal::None) => true,
         (Literal::Bool(left), Literal::Bool(right)) => left == right,
@@ -108,13 +108,37 @@ impl Interpreter {
                         }
                         _ => Err(RuntimeError::new(operator, "Operands must be numbers.").into()),
                     },
-                    TokenType::BangEqual => Ok(Literal::Bool(!is_equal(left, right))),
-                    TokenType::EqualEqual => Ok(Literal::Bool(is_equal(left, right))),
+                    TokenType::BangEqual => Ok(Literal::Bool(!is_equal(&left, &right))),
+                    TokenType::EqualEqual => Ok(Literal::Bool(is_equal(&left, &right))),
                     _ => unreachable!(),
                 }
             }
             Expr::Grouping { expression } => self.evaluate(expression),
             Expr::Literal { value } => Ok(value),
+            Expr::Logical {
+                left,
+                operator,
+                right,
+            } => {
+                let left = self.evaluate(left)?;
+                Ok(match operator.type_ {
+                    TokenType::Or => {
+                        if is_truthy(&left) {
+                            left
+                        } else {
+                            self.evaluate(right)?
+                        }
+                    }
+                    TokenType::And => {
+                        if !is_truthy(&left) {
+                            left
+                        } else {
+                            self.evaluate(right)?
+                        }
+                    }
+                    _ => unreachable!(),
+                })
+            }
             Expr::Unary { operator, right } => {
                 let right = self.evaluate(right)?;
                 match operator.type_ {
@@ -125,7 +149,7 @@ impl Interpreter {
                             Err(RuntimeError::new(operator, "Operand must be a number.").into())
                         }
                     }
-                    TokenType::Bang => Ok(Literal::Bool(!is_truthy(right))),
+                    TokenType::Bang => Ok(Literal::Bool(!is_truthy(&right))),
                     _ => unreachable!(),
                 }
             }
@@ -153,7 +177,7 @@ impl Interpreter {
                 then_branch,
                 else_branch,
             } => {
-                if is_truthy(self.evaluate(condition)?) {
+                if is_truthy(&self.evaluate(condition)?) {
                     self.execute(*then_branch)?
                 } else if else_branch.is_some() {
                     self.execute(*else_branch.unwrap())?

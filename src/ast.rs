@@ -18,6 +18,11 @@ pub enum Expr {
     Literal {
         value: Literal,
     },
+    Logical {
+        left: Box<Expr>,
+        operator: Token,
+        right: Box<Expr>,
+    },
     Unary {
         operator: Token,
         right: Box<Expr>,
@@ -67,6 +72,11 @@ impl fmt::Display for Expr {
             } => parenthesize(f, &operator.lexeme, &[left, right]),
             Expr::Grouping { expression } => parenthesize(f, "group", &[expression]),
             Expr::Literal { value } => write!(f, "{}", value),
+            Expr::Logical {
+                left,
+                operator,
+                right,
+            } => write!(f, "{} {} {}", left, &operator.lexeme, right),
             Expr::Unary { operator, right } => parenthesize(f, &operator.lexeme, &[right]),
             Expr::Variable { name } => write!(f, "var {}", name),
         }
