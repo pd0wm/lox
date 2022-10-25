@@ -253,13 +253,17 @@ impl Interpreter {
         let mut env = Environment::from_env(&environment);
         mem::swap(&mut self.environment, &mut env);
 
-        for statement in statements {
-            self.execute(&statement)?;
-        }
 
-        // TODO: Also restore in case of failure
+        let r = || -> Result<(), LoxError> {
+            for statement in statements {
+                self.execute(&statement)?;
+            }
+            Ok(())
+        }();
+
         mem::swap(&mut self.environment, &mut env);
-        Ok(())
+
+        r
     }
 
     pub fn interpret(&mut self, statements: Vec<Stmt>) -> Result<(), LoxError> {
