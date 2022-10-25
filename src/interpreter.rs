@@ -1,7 +1,9 @@
+use std::time::{SystemTime, UNIX_EPOCH};
+
 use crate::ast::{Expr, Stmt};
 use crate::environment::Environment;
 use crate::lox_error::{LoxError, RuntimeError};
-use crate::token::{Literal, Callable, Function};
+use crate::token::{Callable, Literal, NativeFunction, Token};
 use crate::token_type::TokenType;
 
 fn is_truthy(val: &Literal) -> bool {
@@ -26,11 +28,33 @@ pub struct Interpreter {
     environment: Environment,
 }
 
+// TODO: move into native_functions.rs
+fn clock_fn(_interpreter: &Interpreter, _arguments: &Vec<Literal>) -> Result<Literal, LoxError> {
+    let now = SystemTime::now();
+    let secs = now.duration_since(UNIX_EPOCH).unwrap().as_secs_f64();
+    Ok(Literal::Number(secs))
+}
+
+fn setup_native_functions(environment: &mut Environment) {
+    environment.define(
+        &Token {
+            type_: TokenType::Fun,
+            lexeme: "clock".to_string(),
+            literal: None,
+            line: 0,
+        },
+        &Literal::Callable(Callable::NativeFunction(NativeFunction {
+            arity: 0,
+            closure: clock_fn,
+        })),
+    );
+}
+
 impl Interpreter {
     pub fn new() -> Self {
-        Interpreter {
-            environment: Environment::new(),
-        }
+        let mut env = Environment::new();
+        setup_native_functions(&mut env);
+        Interpreter { environment: env }
     }
 
     pub fn evaluate(&mut self, expression: &Expr) -> Result<Literal, LoxError> {
@@ -109,7 +133,11 @@ impl Interpreter {
                     _ => unreachable!(),
                 }
             }
-            Expr::Call { callee, paren, arguments } => {
+            Expr::Call {
+                callee,
+                paren,
+                arguments,
+            } => {
                 let callee = self.evaluate(&callee)?;
                 let mut values = Vec::new();
                 for argument in arguments {
@@ -120,12 +148,18 @@ impl Interpreter {
                     Literal::Callable(c) => {
                         if arguments.len() == c.arity() {
                             c.call(self, &values)
-                        }  else {
-                            let error_msg = format!("Expected {} arguments but got {}.", c.arity(), arguments.len());
+                        } else {
+                            let error_msg = format!(
+                                "Expected {} arguments but got {}.",
+                                c.arity(),
+                                arguments.len()
+                            );
                             Err(RuntimeError::new(paren, &error_msg).into())
                         }
                     }
-                    _ => Err(RuntimeError::new(paren, "Can only call functions and classes").into()),
+                    _ => {
+                        Err(RuntimeError::new(paren, "Can only call functions and classes").into())
+                    }
                 }
             }
             Expr::Grouping { expression } => self.evaluate(&expression),
@@ -253,9 +287,9 @@ mod tests {
         };
 
         let mut interpreter = Interpreter::new();
-        assert_eq!(
-            Literal::Number(-123.0 * 45.67),
-            interpreter.evaluate(&Box::new(expression)).unwrap()
-        );
+        assert!(is_equal(
+            &Literal::Number(-123.0 * 45.67),
+            &interpreter.evaluate(&Box::new(expression)).unwrap()
+        ));
     }
 }

@@ -295,7 +295,11 @@ impl Parser {
         if !self.check(TokenType::RightParen) {
             loop {
                 if arguments.len() >= 255 {
-                    return Err(ParserError::new(&self.peek(), "Can't have more than 255 arguments.").into());
+                    return Err(ParserError::new(
+                        &self.peek(),
+                        "Can't have more than 255 arguments.",
+                    )
+                    .into());
                 }
                 arguments.push(self.expression()?);
 
@@ -306,7 +310,11 @@ impl Parser {
         }
         let paren = self.consume(TokenType::RightParen, "Expect ')' after arguments.")?;
 
-        Ok(Box::new(Expr::Call { callee, paren, arguments }))
+        Ok(Box::new(Expr::Call {
+            callee,
+            paren,
+            arguments,
+        }))
     }
 
     fn call(&mut self) -> Result<Box<Expr>, LoxError> {
