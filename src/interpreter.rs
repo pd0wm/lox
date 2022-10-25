@@ -122,7 +122,7 @@ impl Interpreter {
                 paren,
                 arguments,
             } => {
-                let callee = self.evaluate(&callee)?;
+                let callee = self.evaluate(callee)?;
                 let mut values = Vec::new();
                 for argument in arguments {
                     values.push(self.evaluate(argument)?);
@@ -146,7 +146,7 @@ impl Interpreter {
                     }
                 }
             }
-            Expr::Grouping { expression } => self.evaluate(&expression),
+            Expr::Grouping { expression } => self.evaluate(expression),
             Expr::Literal { value } => Ok(value.clone()),
             Expr::Logical {
                 left,
@@ -159,14 +159,14 @@ impl Interpreter {
                         if is_truthy(&left) {
                             left
                         } else {
-                            self.evaluate(&right)?
+                            self.evaluate(right)?
                         }
                     }
                     TokenType::And => {
                         if !is_truthy(&left) {
                             left
                         } else {
-                            self.evaluate(&right)?
+                            self.evaluate(right)?
                         }
                     }
                     _ => unreachable!(),
@@ -196,7 +196,7 @@ impl Interpreter {
                 self.execute_block(statements, Environment::from_env(&self.environment))?;
             }
             Stmt::Expression { expression } => {
-                self.evaluate(&expression)?;
+                self.evaluate(expression)?;
             }
             Stmt::Function { name, params, body } => {
                 self.environment.define(
@@ -213,32 +213,32 @@ impl Interpreter {
                 then_branch,
                 else_branch,
             } => {
-                if is_truthy(&self.evaluate(&condition)?) {
+                if is_truthy(&self.evaluate(condition)?) {
                     self.execute(then_branch)?
                 } else if let Some(else_branch) = else_branch {
                     self.execute(else_branch)?
                 }
             }
             Stmt::Print { expression } => {
-                let value = self.evaluate(&expression)?;
+                let value = self.evaluate(expression)?;
                 println!("{}", value);
             }
             Stmt::Return { keyword: _, value } => {
                 let value = match value {
-                    Some(expr) => self.evaluate(&expr)?,
+                    Some(expr) => self.evaluate(expr)?,
                     _ => Literal::None,
                 };
                 return Err(ReturnError { value }.into());
             }
             Stmt::Var { name, initializer } => {
                 let value = match initializer {
-                    Some(expression) => self.evaluate(&expression)?,
+                    Some(expression) => self.evaluate(expression)?,
                     None => Literal::None,
                 };
-                self.environment.define(&name, &value);
+                self.environment.define(name, &value);
             }
             Stmt::While { condition, body } => {
-                while is_truthy(&self.evaluate(&condition)?) {
+                while is_truthy(&self.evaluate(condition)?) {
                     self.execute(body)?;
                 }
             }
@@ -256,7 +256,7 @@ impl Interpreter {
 
         let r = || -> Result<(), LoxError> {
             for statement in statements {
-                self.execute(&statement)?;
+                self.execute(statement)?;
             }
             Ok(())
         }();

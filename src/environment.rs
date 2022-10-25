@@ -29,7 +29,7 @@ impl EnvironmentValues {
             Ok(())
         } else {
             match &mut self.enclosing {
-                Some(enclosing) => enclosing.borrow_mut().assign(name, &value),
+                Some(enclosing) => enclosing.borrow_mut().assign(name, value),
                 _ => {
                     let error_msg = format!("Undefined variable '{}'.", name.lexeme);
                     Err(RuntimeError::new(name, &error_msg).into())
@@ -42,7 +42,7 @@ impl EnvironmentValues {
         match self.values.get(&name.lexeme) {
             Some(literal) => Ok(literal.clone()),
             None => match &self.enclosing {
-                Some(enclosing) => enclosing.borrow().get(&name),
+                Some(enclosing) => enclosing.borrow().get(name),
                 _ => {
                     let error_msg = format!("Undefined variable '{}'.", name.lexeme);
                     Err(RuntimeError::new(name, &error_msg).into())

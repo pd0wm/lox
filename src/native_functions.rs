@@ -6,10 +6,7 @@ use crate::token_type::TokenType;
 
 use std::time::{SystemTime, UNIX_EPOCH};
 
-fn clock_fn(
-    _interpreter: &mut Interpreter,
-    _arguments: &Vec<Literal>,
-) -> Result<Literal, LoxError> {
+fn clock_fn(_interpreter: &mut Interpreter, _arguments: &[Literal]) -> Result<Literal, LoxError> {
     let now = SystemTime::now();
     let secs = now.duration_since(UNIX_EPOCH).unwrap().as_secs_f64();
     Ok(Literal::Number(secs))

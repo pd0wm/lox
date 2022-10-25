@@ -33,7 +33,7 @@ impl Callable {
     pub fn call(
         &self,
         interpreter: &mut Interpreter,
-        arguments: &Vec<Literal>,
+        arguments: &[Literal],
     ) -> Result<Literal, LoxError> {
         match self {
             Callable::Function(f) => f.call(interpreter, arguments),
@@ -45,14 +45,14 @@ impl Callable {
 #[derive(Clone)]
 pub struct NativeFunction {
     pub arity: usize,
-    pub closure: fn(&mut Interpreter, &Vec<Literal>) -> Result<Literal, LoxError>,
+    pub closure: fn(&mut Interpreter, &[Literal]) -> Result<Literal, LoxError>,
 }
 
 impl NativeFunction {
     pub fn call(
         &self,
         interpreter: &mut Interpreter,
-        arguments: &Vec<Literal>,
+        arguments: &[Literal],
     ) -> Result<Literal, LoxError> {
         (self.closure)(interpreter, arguments)
     }
@@ -69,7 +69,7 @@ impl Function {
     pub fn call(
         &self,
         interpreter: &mut Interpreter,
-        arguments: &Vec<Literal>,
+        arguments: &[Literal],
     ) -> Result<Literal, LoxError> {
         let mut env = Environment::from_env(&self.closure);
         for (param, arg) in zip(&self.params, arguments) {

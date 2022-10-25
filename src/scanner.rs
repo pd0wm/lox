@@ -164,7 +164,7 @@ impl Scanner {
             return false;
         }
         self.current += 1;
-        return true;
+        true
     }
 
     fn peek(&self) -> Option<char> {

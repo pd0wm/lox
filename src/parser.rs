@@ -10,9 +10,9 @@ pub struct Parser {
 }
 
 impl Parser {
-    pub fn new(tokens: &Vec<Token>) -> Self {
+    pub fn new(tokens: &[Token]) -> Self {
         Self {
-            tokens: tokens.clone(),
+            tokens: tokens.to_vec(),
             ..Default::default()
         }
     }
