@@ -14,7 +14,7 @@ pub enum Expr {
     Call {
         callee: Box<Expr>,
         paren: Token,
-        arguments: Vec<Box<Expr>>,
+        arguments: Vec<Expr>,
     },
     Grouping {
         expression: Box<Expr>,
@@ -39,7 +39,7 @@ pub enum Expr {
 #[derive(Clone)]
 pub enum Stmt {
     Block {
-        statements: Vec<Box<Stmt>>,
+        statements: Vec<Stmt>,
     },
     Expression {
         expression: Box<Expr>,
@@ -47,7 +47,7 @@ pub enum Stmt {
     Function {
         name: Box<Token>,
         params: Vec<Token>,
-        body: Vec<Box<Stmt>>,
+        body: Vec<Stmt>,
     },
     If {
         condition: Box<Expr>,

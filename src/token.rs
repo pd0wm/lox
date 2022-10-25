@@ -62,7 +62,7 @@ impl NativeFunction {
 pub struct Function {
     pub closure: Environment,
     pub params: Vec<Token>,
-    pub body: Vec<Box<Stmt>>,
+    pub body: Vec<Stmt>,
 }
 
 impl Function {

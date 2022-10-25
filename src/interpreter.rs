@@ -248,12 +248,11 @@ impl Interpreter {
 
     pub fn execute_block(
         &mut self,
-        statements: &Vec<Box<Stmt>>,
+        statements: &Vec<Stmt>,
         environment: Environment,
     ) -> Result<(), LoxError> {
         let mut env = Environment::from_env(&environment);
         mem::swap(&mut self.environment, &mut env);
-
 
         let r = || -> Result<(), LoxError> {
             for statement in statements {
