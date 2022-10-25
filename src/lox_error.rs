@@ -1,7 +1,7 @@
 use std::error::Error;
 use std::fmt;
 
-use crate::token::Token;
+use crate::token::{Literal, Token};
 use crate::token_type::TokenType;
 
 #[derive(Debug, Clone)]
@@ -22,11 +22,23 @@ pub struct ScannerError {
     message: String,
 }
 
+#[derive(Clone)]
+pub struct ReturnError {
+    pub value: Literal,
+}
+
+impl fmt::Debug for ReturnError {
+    fn fmt(&self, _f: &mut fmt::Formatter) -> fmt::Result {
+        unreachable!();
+    }
+}
+
 #[derive(Debug, Clone)]
 pub enum LoxError {
     Parser(ParserError),
     Runtime(RuntimeError),
     Scanner(ScannerError),
+    Return(ReturnError),
 }
 
 impl ParserError {
@@ -86,12 +98,19 @@ impl fmt::Display for ScannerError {
     }
 }
 
+impl fmt::Display for ReturnError {
+    fn fmt(&self, _f: &mut fmt::Formatter) -> fmt::Result {
+        unreachable!();
+    }
+}
+
 impl fmt::Display for LoxError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             LoxError::Runtime(e) => e.fmt(f),
             LoxError::Scanner(e) => e.fmt(f),
             LoxError::Parser(e) => e.fmt(f),
+            LoxError::Return(e) => e.fmt(f),
         }
     }
 }
@@ -100,6 +119,7 @@ impl Error for ParserError {}
 impl Error for RuntimeError {}
 impl Error for ScannerError {}
 impl Error for LoxError {}
+impl Error for ReturnError {}
 
 impl From<ParserError> for LoxError {
     fn from(err: ParserError) -> LoxError {
@@ -116,5 +136,11 @@ impl From<RuntimeError> for LoxError {
 impl From<ScannerError> for LoxError {
     fn from(err: ScannerError) -> LoxError {
         LoxError::Scanner(err)
+    }
+}
+
+impl From<ReturnError> for LoxError {
+    fn from(err: ReturnError) -> LoxError {
+        LoxError::Return(err)
     }
 }

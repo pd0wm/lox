@@ -43,6 +43,8 @@ impl Parser {
             self.if_statement()
         } else if self.match_(&[TokenType::Print]) {
             self.print_statement()
+        } else if self.match_(&[TokenType::Return]) {
+            self.return_statement()
         } else if self.match_(&[TokenType::While]) {
             self.while_statement()
         } else if self.match_(&[TokenType::LeftBrace]) {
@@ -130,6 +132,19 @@ impl Parser {
         self.consume(TokenType::Semicolon, "Expect ';' after value.")?;
 
         Ok(Stmt::Print { expression: value })
+    }
+
+    fn return_statement(&mut self) -> Result<Stmt, LoxError> {
+        let keyword = Box::new(self.previous());
+        let value = if self.check(TokenType::Semicolon) {
+            None
+        } else {
+            Some(self.expression()?)
+        };
+
+        self.consume(TokenType::Semicolon, "Expect ';' after return value.")?;
+
+        Ok(Stmt::Return { keyword, value })
     }
 
     fn while_statement(&mut self) -> Result<Stmt, LoxError> {

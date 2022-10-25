@@ -1,6 +1,6 @@
 use crate::ast::{Expr, Stmt};
 use crate::environment::Environment;
-use crate::lox_error::{LoxError, RuntimeError};
+use crate::lox_error::{LoxError, ReturnError, RuntimeError};
 use crate::native_functions::setup_native_functions;
 use crate::token::{Callable, Function, Literal};
 use crate::token_type::TokenType;
@@ -221,6 +221,13 @@ impl Interpreter {
             Stmt::Print { expression } => {
                 let value = self.evaluate(&expression)?;
                 println!("{}", value);
+            }
+            Stmt::Return { keyword: _, value } => {
+                let value = match value {
+                    Some(expr) => self.evaluate(&expr)?,
+                    _ => Literal::None,
+                };
+                return Err(ReturnError { value }.into());
             }
             Stmt::Var { name, initializer } => {
                 let value = match initializer {

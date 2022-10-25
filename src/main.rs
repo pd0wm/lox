@@ -50,5 +50,6 @@ fn main() -> ExitCode {
             eprintln!("{}", e);
             ExitCode::from(70)
         }
+        Err(LoxError::Return(_)) => ExitCode::from(0),
     }
 }
