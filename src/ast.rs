@@ -57,6 +57,10 @@ pub enum Stmt {
     Print {
         expression: Box<Expr>,
     },
+    Return {
+        keyword: Box<Token>,
+        value: Option<Box<Expr>>,
+    },
     Var {
         name: Box<Token>,
         initializer: Option<Box<Expr>>,

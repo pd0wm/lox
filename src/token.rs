@@ -75,9 +75,13 @@ impl Function {
             env.define(param, arg)
         }
 
-        interpreter.execute_block(&self.body, env)?;
-
-        Ok(Literal::None) // TODO: return values
+        match interpreter.execute_block(&self.body, env) {
+            Err(e) => match e {
+                LoxError::Return(r) => Ok(r.value),
+                _ => Err(e),
+            },
+            _ => Ok(Literal::None),
+        }
     }
 
     pub fn arity(&self) -> usize {
