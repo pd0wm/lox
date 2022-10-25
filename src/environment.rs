@@ -67,12 +67,12 @@ impl Environment {
     pub fn push(&mut self) {
         let mut new = EnvironmentValues::new();
         mem::swap(&mut self.head, &mut new);
-        self.head.borrow_mut().enclosing = Some(new);
+        self.head.borrow_mut().enclosing = Some(new); // new now points to the old head
     }
 
     pub fn pop(&mut self) {
-        let new = mem::take(&mut self.head.borrow_mut().enclosing); // Replaces head.enclosing with None
-        self.head = new.unwrap();
+        let enclosing = self.head.borrow_mut().enclosing.take(); // Replaces head.enclosing with None
+        self.head = enclosing.unwrap();
     }
 
     pub fn define(&mut self, name: &Token, value: &Literal) {
