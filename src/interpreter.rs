@@ -1,7 +1,7 @@
 use crate::ast::{Expr, Stmt};
 use crate::environment::Environment;
 use crate::lox_error::{LoxError, RuntimeError};
-use crate::token::Literal;
+use crate::token::{Literal, Callable, Function};
 use crate::token_type::TokenType;
 
 fn is_truthy(val: &Literal) -> bool {
@@ -107,6 +107,25 @@ impl Interpreter {
                     TokenType::BangEqual => Ok(Literal::Bool(!is_equal(&left, &right))),
                     TokenType::EqualEqual => Ok(Literal::Bool(is_equal(&left, &right))),
                     _ => unreachable!(),
+                }
+            }
+            Expr::Call { callee, paren, arguments } => {
+                let callee = self.evaluate(&callee)?;
+                let mut values = Vec::new();
+                for argument in arguments {
+                    values.push(self.evaluate(argument)?);
+                }
+
+                match callee {
+                    Literal::Callable(c) => {
+                        if arguments.len() == c.arity() {
+                            c.call(self, &values)
+                        }  else {
+                            let error_msg = format!("Expected {} arguments but got {}.", c.arity(), arguments.len());
+                            Err(RuntimeError::new(paren, &error_msg).into())
+                        }
+                    }
+                    _ => Err(RuntimeError::new(paren, "Can only call functions and classes").into()),
                 }
             }
             Expr::Grouping { expression } => self.evaluate(&expression),
