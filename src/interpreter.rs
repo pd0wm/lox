@@ -2,8 +2,9 @@ use crate::ast::{Expr, Stmt};
 use crate::environment::Environment;
 use crate::lox_error::{LoxError, RuntimeError};
 use crate::native_functions::setup_native_functions;
-use crate::token::Literal;
+use crate::token::{Callable, Function, Literal};
 use crate::token_type::TokenType;
+use std::mem;
 
 fn is_truthy(val: &Literal) -> bool {
     match val {
@@ -24,14 +25,20 @@ fn is_equal(left: &Literal, right: &Literal) -> bool {
 }
 
 pub struct Interpreter {
-    environment: Environment,
+    pub globals: Environment,
+    pub environment: Environment,
 }
 
 impl Interpreter {
     pub fn new() -> Self {
-        let mut env = Environment::new();
-        setup_native_functions(&mut env);
-        Interpreter { environment: env }
+        let mut globals = Environment::new();
+        setup_native_functions(&mut globals);
+
+        let environment = Environment::from_env(&globals);
+        Interpreter {
+            globals,
+            environment,
+        }
     }
 
     pub fn evaluate(&mut self, expression: &Expr) -> Result<Literal, LoxError> {
@@ -186,17 +193,19 @@ impl Interpreter {
     pub fn execute(&mut self, statement: &Stmt) -> Result<(), LoxError> {
         match statement {
             Stmt::Block { statements } => {
-                self.environment.push();
-
-                for statement in statements {
-                    self.execute(statement)?;
-                }
-
-                // TODO: also pop when execute fails
-                self.environment.pop();
+                self.execute_block(statements, Environment::from_env(&self.environment))?;
             }
             Stmt::Expression { expression } => {
                 self.evaluate(&expression)?;
+            }
+            Stmt::Function { name, params, body } => {
+                self.environment.define(
+                    name,
+                    &Literal::Callable(Callable::Function(Function {
+                        params: params.clone(),
+                        body: body.clone(),
+                    })),
+                );
             }
             Stmt::If {
                 condition,
@@ -226,6 +235,23 @@ impl Interpreter {
                 }
             }
         }
+        Ok(())
+    }
+
+    pub fn execute_block(
+        &mut self,
+        statements: &Vec<Box<Stmt>>,
+        environment: Environment,
+    ) -> Result<(), LoxError> {
+        let mut env = Environment::from_env(&environment);
+        mem::swap(&mut self.environment, &mut env);
+
+        for statement in statements {
+            self.execute(&statement)?;
+        }
+
+        // TODO: Also restore in case of failure
+        mem::swap(&mut self.environment, &mut env);
         Ok(())
     }
 

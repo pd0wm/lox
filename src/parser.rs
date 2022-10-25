@@ -27,7 +27,9 @@ impl Parser {
     }
 
     fn declaration(&mut self) -> Result<Stmt, LoxError> {
-        if self.match_(&[TokenType::Var]) {
+        if self.match_(&[TokenType::Fun]) {
+            self.function("function")
+        } else if self.match_(&[TokenType::Var]) {
             self.var_declaration()
         } else {
             self.statement()
@@ -164,7 +166,10 @@ impl Parser {
             "Expect ';' after variable declaration.",
         )?;
 
-        Ok(Stmt::Var { name, initializer })
+        Ok(Stmt::Var {
+            name: Box::new(name),
+            initializer,
+        })
     }
 
     fn expression_statement(&mut self) -> Result<Stmt, LoxError> {
@@ -172,6 +177,42 @@ impl Parser {
         self.consume(TokenType::Semicolon, "Expect ';' after expression.")?;
 
         Ok(Stmt::Expression { expression: expr })
+    }
+
+    fn function(&mut self, kind: &str) -> Result<Stmt, LoxError> {
+        let error_msg = format!("Expect {} name.", kind);
+        let name = self.consume(TokenType::Identifier, &error_msg)?;
+        let error_msg = format!("Expect '(' after {} name.", kind);
+        self.consume(TokenType::LeftParen, &error_msg)?;
+
+        let mut params = Vec::new();
+        if !self.check(TokenType::RightParen) {
+            loop {
+                if params.len() >= 255 {
+                    return Err(ParserError::new(
+                        &self.peek(),
+                        "Can't have more than 255 parameters.",
+                    )
+                    .into());
+                }
+
+                params.push(self.consume(TokenType::Identifier, "Expect parameter name.")?);
+
+                if !self.match_(&[TokenType::Comma]) {
+                    break;
+                }
+            }
+        }
+        self.consume(TokenType::RightParen, "Expect ')' after parameters.")?;
+        let error_msg = format!("Expect '{{' before {} body.", kind);
+        self.consume(TokenType::LeftBrace, &error_msg)?;
+        let body = self.block()?;
+
+        Ok(Stmt::Function {
+            name: Box::new(name),
+            params,
+            body,
+        })
     }
 
     fn expression(&mut self) -> Result<Box<Expr>, LoxError> {

@@ -1,5 +1,6 @@
 use crate::token::{Literal, Token};
 
+#[derive(Clone)]
 pub enum Expr {
     Assign {
         name: Token,
@@ -35,12 +36,18 @@ pub enum Expr {
     },
 }
 
+#[derive(Clone)]
 pub enum Stmt {
     Block {
         statements: Vec<Box<Stmt>>,
     },
     Expression {
         expression: Box<Expr>,
+    },
+    Function {
+        name: Box<Token>,
+        params: Vec<Token>,
+        body: Vec<Box<Stmt>>,
     },
     If {
         condition: Box<Expr>,
@@ -51,7 +58,7 @@ pub enum Stmt {
         expression: Box<Expr>,
     },
     Var {
-        name: Token,
+        name: Box<Token>,
         initializer: Option<Box<Expr>>,
     },
     While {

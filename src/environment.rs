@@ -64,15 +64,18 @@ impl Environment {
         }
     }
 
-    pub fn push(&mut self) {
+    pub fn from_env(env: &Environment) -> Self {
+        let mut r = Self { head: env.head() };
+
         let mut new = EnvironmentValues::new();
-        mem::swap(&mut self.head, &mut new);
-        self.head.borrow_mut().enclosing = Some(new); // new now points to the old head
+        mem::swap(&mut r.head, &mut new);
+        r.head.borrow_mut().enclosing = Some(new); // new now points to the old head
+
+        r
     }
 
-    pub fn pop(&mut self) {
-        let enclosing = self.head.borrow_mut().enclosing.take(); // Replaces head.enclosing with None
-        self.head = enclosing.unwrap();
+    fn head(&self) -> Rc<RefCell<EnvironmentValues>> {
+        self.head.clone()
     }
 
     pub fn define(&mut self, name: &Token, value: &Literal) {
