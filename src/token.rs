@@ -1,7 +1,10 @@
+use crate::ast::Stmt;
+use crate::environment::Environment;
 use crate::interpreter::Interpreter;
 use crate::lox_error::LoxError;
 use crate::token_type::TokenType;
 use std::fmt;
+use std::iter::zip;
 
 #[derive(Clone)]
 pub enum Literal {
@@ -22,14 +25,14 @@ pub enum Callable {
 impl Callable {
     pub fn arity(&self) -> usize {
         match self {
-            Callable::Function(f) => f.arity,
+            Callable::Function(f) => f.arity(),
             Callable::NativeFunction(f) => f.arity,
         }
     }
 
     pub fn call(
         &self,
-        interpreter: &Interpreter,
+        interpreter: &mut Interpreter,
         arguments: &Vec<Literal>,
     ) -> Result<Literal, LoxError> {
         match self {
@@ -42,13 +45,13 @@ impl Callable {
 #[derive(Clone)]
 pub struct NativeFunction {
     pub arity: usize,
-    pub closure: fn(&Interpreter, &Vec<Literal>) -> Result<Literal, LoxError>,
+    pub closure: fn(&mut Interpreter, &Vec<Literal>) -> Result<Literal, LoxError>,
 }
 
 impl NativeFunction {
     pub fn call(
         &self,
-        interpreter: &Interpreter,
+        interpreter: &mut Interpreter,
         arguments: &Vec<Literal>,
     ) -> Result<Literal, LoxError> {
         (self.closure)(interpreter, arguments)
@@ -57,16 +60,28 @@ impl NativeFunction {
 
 #[derive(Clone)]
 pub struct Function {
-    pub arity: usize,
+    pub params: Vec<Token>,
+    pub body: Vec<Box<Stmt>>,
 }
 
 impl Function {
     pub fn call(
         &self,
-        _interpreter: &Interpreter,
-        _arguments: &Vec<Literal>,
+        interpreter: &mut Interpreter,
+        arguments: &Vec<Literal>,
     ) -> Result<Literal, LoxError> {
-        Ok(Literal::None)
+        let mut env = Environment::from_env(&interpreter.globals);
+        for (param, arg) in zip(&self.params, arguments) {
+            env.define(param, arg)
+        }
+
+        interpreter.execute_block(&self.body, env)?;
+
+        Ok(Literal::None) // TODO: return values
+    }
+
+    pub fn arity(&self) -> usize {
+        self.params.len()
     }
 }
 
