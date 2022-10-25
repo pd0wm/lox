@@ -5,7 +5,6 @@ use crate::lox_error::LoxError;
 use crate::parser::Parser;
 use crate::scanner::Scanner;
 
-#[derive(Default)]
 pub struct Lox {
     interpreter: Interpreter,
 }
@@ -13,7 +12,7 @@ pub struct Lox {
 impl Lox {
     pub fn new() -> Self {
         Self {
-            ..Default::default()
+            interpreter: Interpreter::new(),
         }
     }
 

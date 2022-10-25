@@ -1,5 +1,3 @@
-use std::mem;
-
 use crate::ast::{Expr, Stmt};
 use crate::environment::Environment;
 use crate::lox_error::{LoxError, RuntimeError};
@@ -24,16 +22,14 @@ fn is_equal(left: &Literal, right: &Literal) -> bool {
     }
 }
 
-#[derive(Default)]
 pub struct Interpreter {
     environment: Environment,
 }
 
 impl Interpreter {
-    #[allow(dead_code)]
     pub fn new() -> Self {
-        Self {
-            ..Default::default()
+        Interpreter {
+            environment: Environment::new(),
         }
     }
 
@@ -160,14 +156,14 @@ impl Interpreter {
     pub fn execute(&mut self, statement: &Stmt) -> Result<(), LoxError> {
         match statement {
             Stmt::Block { statements } => {
-                let mut env = Environment::new(&self.environment);
-                mem::swap(&mut self.environment, &mut env);
+                self.environment.push();
 
                 for statement in statements {
                     self.execute(statement)?;
                 }
 
-                mem::swap(&mut self.environment, &mut env);
+                // TODO: also pop when execute fails
+                self.environment.pop();
             }
             Stmt::Expression { expression } => {
                 self.evaluate(&expression)?;
