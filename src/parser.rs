@@ -63,7 +63,9 @@ impl Parser {
         };
 
         let condition = if self.check(TokenType::Semicolon) {
-            Box::new(Expr::Literal { value: Literal::Bool(true) })
+            Box::new(Expr::Literal {
+                value: Literal::Bool(true),
+            })
         } else {
             self.expression()?
         };
@@ -88,14 +90,14 @@ impl Parser {
             };
         };
 
-        body = Stmt::While { condition, body: Box::new(body) };
+        body = Stmt::While {
+            condition,
+            body: Box::new(body),
+        };
 
         if let Some(initializer) = initializer {
             body = Stmt::Block {
-                statements: vec![
-                    Box::new(initializer),
-                    Box::new(body),
-                ],
+                statements: vec![Box::new(initializer), Box::new(body)],
             };
         }
 
