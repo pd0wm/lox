@@ -90,3 +90,12 @@ impl Environment {
         self.head.borrow().get(name)
     }
 }
+
+impl Clone for Environment {
+    fn clone(&self) -> Environment {
+        Environment {
+            head: self.head()
+        }
+    }
+
+}
