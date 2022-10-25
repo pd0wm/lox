@@ -142,7 +142,7 @@ impl Interpreter {
                         }
                     }
                     _ => {
-                        Err(RuntimeError::new(paren, "Can only call functions and classes").into())
+                        Err(RuntimeError::new(paren, "Can only call functions and classes.").into())
                     }
                 }
             }
