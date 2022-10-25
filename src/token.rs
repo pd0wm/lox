@@ -60,6 +60,7 @@ impl NativeFunction {
 
 #[derive(Clone)]
 pub struct Function {
+    pub closure: Environment,
     pub params: Vec<Token>,
     pub body: Vec<Box<Stmt>>,
 }
@@ -70,7 +71,7 @@ impl Function {
         interpreter: &mut Interpreter,
         arguments: &Vec<Literal>,
     ) -> Result<Literal, LoxError> {
-        let mut env = Environment::from_env(&interpreter.globals);
+        let mut env = Environment::from_env(&self.closure);
         for (param, arg) in zip(&self.params, arguments) {
             env.define(param, arg)
         }

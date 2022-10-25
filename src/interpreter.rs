@@ -202,6 +202,7 @@ impl Interpreter {
                 self.environment.define(
                     name,
                     &Literal::Callable(Callable::Function(Function {
+                        closure: self.environment.clone(),
                         params: params.clone(),
                         body: body.clone(),
                     })),
