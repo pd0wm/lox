@@ -84,6 +84,6 @@ impl Environment {
     }
 
     pub fn get(&self, name: &Token) -> Result<Literal, LoxError> {
-        self.head.borrow_mut().get(name)
+        self.head.borrow().get(name)
     }
 }
