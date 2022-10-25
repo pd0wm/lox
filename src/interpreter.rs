@@ -33,10 +33,10 @@ impl Interpreter {
         }
     }
 
-    pub fn evaluate(&mut self, expression: &Box<Expr>) -> Result<Literal, LoxError> {
-        match &**expression {
+    pub fn evaluate(&mut self, expression: &Expr) -> Result<Literal, LoxError> {
+        match expression {
             Expr::Assign { name, value } => {
-                let value = self.evaluate(&value)?;
+                let value = self.evaluate(value)?;
                 self.environment.assign(name, &value)?;
                 Ok(value)
             }
@@ -45,8 +45,8 @@ impl Interpreter {
                 operator,
                 right,
             } => {
-                let left = self.evaluate(&left)?;
-                let right = self.evaluate(&right)?;
+                let left = self.evaluate(left)?;
+                let right = self.evaluate(right)?;
 
                 match operator.type_ {
                     TokenType::Minus => match (left, right) {
@@ -116,7 +116,7 @@ impl Interpreter {
                 operator,
                 right,
             } => {
-                let left = self.evaluate(&left)?;
+                let left = self.evaluate(left)?;
                 Ok(match operator.type_ {
                     TokenType::Or => {
                         if is_truthy(&left) {
@@ -136,7 +136,7 @@ impl Interpreter {
                 })
             }
             Expr::Unary { operator, right } => {
-                let right = self.evaluate(&right)?;
+                let right = self.evaluate(right)?;
                 match operator.type_ {
                     TokenType::Minus => {
                         if let Literal::Number(right) = right {
